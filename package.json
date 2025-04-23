@@ -1,34 +1,15 @@
 {
-  "name": "aither-way",
-  "version": "0.1.0",
+  "name": "12.-test",
+  "module": "index.ts",
+  "type": "module",
   "private": true,
-  "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
   },
   "dependencies": {
-    "@types/puppeteer-core": "^7.0.4",
-    "axios": "^1.8.4",
-    "cheerio": "^1.0.0",
-    "express": "^5.1.0",
-    "next": "15.3.1",
-    "puppeteer": "^24.7.0",
-    "puppeteer-core": "^24.7.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
-  },
-  "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4",
-    "@types/bun": "^1.2.10",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "15.3.1",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "puppeteer-core": "^24.7.1"
   }
 }
