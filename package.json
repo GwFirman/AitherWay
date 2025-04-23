@@ -1,15 +1,25 @@
 {
-  "name": "12.-test",
-  "module": "index.ts",
-  "type": "module",
-  "private": true,
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
-  "dependencies": {
-    "puppeteer-core": "^24.7.1"
-  }
+	"name": "12.-test",
+	"module": "index.ts",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"dev": "bun run src/index.ts",
+		"build": "bun build index.ts --outdir=dist --minify",
+		"start": "bun run dist/index.js"
+	},
+	"devDependencies": {
+		"@types/bun": "latest",
+		"@types/express": "^5.0.1",
+		"@types/node": "^22.14.1"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	},
+	"dependencies": {
+		"@prisma/client": "^6.6.0",
+		"express": "^5.1.0",
+		"prisma": "^6.6.0",
+		"puppeteer-core": "^24.7.1"
+	}
 }
