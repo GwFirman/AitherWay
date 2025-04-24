@@ -7,4 +7,4 @@ RUN bun install
 
 COPY . .
 
-CMD ["bun", "--bun", "run", "dev"]
+CMD ["bun", "run", "dev"]

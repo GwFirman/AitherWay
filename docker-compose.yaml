@@ -2,9 +2,11 @@ version: '3.8'
 
 services:
   nextjs-app:
+    container_name: aither-way
     build:
       context: .
       dockerfile: Dockerfile
+    image: aither-way-img
     ports:
       - "3000:3000"
     volumes:
