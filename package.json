@@ -5,8 +5,9 @@
 	"private": true,
 	"scripts": {
 		"dev": "bun run src/index.ts",
-		"build": "bun build index.ts --outdir=dist --minify",
-		"start": "bun run dist/index.js"
+		"build": "prisma generate",
+		"start": "bun run dist/index.js",
+		"scrapt": "bun run scrapt/index.ts"
 	},
 	"devDependencies": {
 		"@types/bun": "latest",
@@ -18,6 +19,7 @@
 	},
 	"dependencies": {
 		"@prisma/client": "^6.6.0",
+		"cheerio": "^1.0.0",
 		"express": "^5.1.0",
 		"prisma": "^6.6.0",
 		"puppeteer-core": "^24.7.1"

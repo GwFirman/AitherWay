@@ -1,4 +1,8 @@
+import GMaps from "../lib/gMaps";
+
 async function main() {
-	// pemanggilan class GMaps disini buat menjalankan scripting;
+	const gMapsInstance = new GMaps();
+	await gMapsInstance.getDetails("pantai pecaron");
+	console.log("sudah done");
 }
 main();

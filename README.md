@@ -23,5 +23,5 @@ Beda pemakaian soalnya bakal di jalankannya kalo mau generate dataset nya.
 1. Pastikan semua dependensi sudah terinstal dengan perintah:
    ```bash
    bun install
-   bun prisma generate
-   bun dev
+   bun run build
+   bun scrapt
