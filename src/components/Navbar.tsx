@@ -1,6 +1,8 @@
 'use client';
 
 import { motion, AnimatePresence } from "framer-motion";
+
+import { Inter } from "next/font/google";
 import { useState } from 'react';
 import Link from 'next/link';
 
@@ -11,6 +13,12 @@ interface NavbarProps {
         href: string;
     }[];
 }
+
+const inter = Inter({
+    weight: ['400', '500', '600', '700'],
+    subsets: ['latin'],
+    display: 'swap',
+})
 
 const Navbar: React.FC<NavbarProps> = ({ logoText = "Aither Way", menuItems }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -77,7 +85,7 @@ const Navbar: React.FC<NavbarProps> = ({ logoText = "Aither Way", menuItems }) =
 
     return (
         <motion.nav
-            className="absolute top-0 left-0 w-full z-20 p-6 text-white"
+            className={`absolute top-0 left-0 w-full z-20 p-6 text-white ${inter.className}`}
             variants={navVariants}
             initial="hidden"
             animate="visible"

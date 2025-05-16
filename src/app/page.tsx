@@ -3,15 +3,18 @@
 import { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
+import TrendingDestination from "@/components/TrendingDestination";
 
 export default function Home() {
   const menuItems = [
     { label: "Home", href: "#home" },
+    { label: "Explore", href: "#explore" },
+    { label: "Ask Ai" , href: "#askAi" },
     { label: "About", href: "#about" },
-    { label: "Contact", href: "#contact" }
   ];
 
   useEffect(() => {
+
     // Smooth scroll to anchor links
     const handleHashChange = () => {
       const { hash } = window.location;
@@ -38,8 +41,9 @@ export default function Home() {
   return (
     <>
       <Navbar logoText="AitherWay" menuItems={menuItems} />
-      <main>
+      <main className="overflow-hidden">
         <Hero />
+        <TrendingDestination />
       </main>
     </>
   );

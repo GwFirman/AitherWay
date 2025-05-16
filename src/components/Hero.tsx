@@ -1,7 +1,10 @@
 'use client';
 
 import BeachHero from "@/images/BeachHero.jpg";
+
 import { motion } from "framer-motion";
+
+import { Inter } from "next/font/google";
 
 import { FaRegPaperPlane } from "react-icons/fa6";
 import { GrInfo } from "react-icons/gr";
@@ -13,6 +16,12 @@ import { LuUsers } from "react-icons/lu";
 interface HeroProps {
     backgroundImage?: string;
 }
+
+const inter = Inter({
+    weight: ['400', '500', '600', '700'],
+    subsets: ['latin'],
+    display: 'swap',
+});
 
 const Hero: React.FC<HeroProps> = ({ backgroundImage }) => {
     const backGround = backgroundImage || BeachHero.src;
@@ -93,7 +102,7 @@ const Hero: React.FC<HeroProps> = ({ backgroundImage }) => {
                 animate="visible"
             >
                 {/* Main Content */}
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${inter.className}`}>
                     <motion.div 
                         className="max-w-4xl text-center text-white"
                         variants={itemVariants}
@@ -118,7 +127,7 @@ const Hero: React.FC<HeroProps> = ({ backgroundImage }) => {
                     className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
                     variants={itemVariants}
                 >
-                    <div className="flex flex-wrap gap-4 justify-center">
+                    <div className={`flex flex-wrap gap-4 justify-center ${inter.className}`}>
                         <motion.button 
                             variants={buttonVariants}
                             whileHover="hover"
@@ -149,7 +158,7 @@ const Hero: React.FC<HeroProps> = ({ backgroundImage }) => {
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
                             <div className="flex items-center gap-4 px-4 border-r border-gray-200">
                                 <GrMapLocation className="text-3xl text-pink-600" />
-                                <div className="flex flex-col">
+                                <div className={`flex flex-col ${inter.className}`}>
                                     <p className="text-gray-500 text-sm">Location</p>
                                     <p className="font-semibold">Where to go next?</p>
                                 </div>
@@ -157,7 +166,7 @@ const Hero: React.FC<HeroProps> = ({ backgroundImage }) => {
 
                             <div className="flex items-center gap-4 px-4 border-r border-gray-200">
                                 <IoCalendarOutline className="text-3xl text-pink-600" />
-                                <div className="flex flex-col">
+                                <div className={`flex flex-col ${inter.className}`}>
                                     <p className="text-gray-500 text-sm">Travel Insight</p>
                                     <p className="font-semibold">Best time to visit?</p>
                                 </div>
@@ -165,7 +174,7 @@ const Hero: React.FC<HeroProps> = ({ backgroundImage }) => {
 
                             <div className="flex items-center gap-4 px-4 border-r border-gray-200">
                                 <BiWallet className="text-3xl text-pink-600" />
-                                <div className="flex flex-col">
+                                <div className={`flex flex-col ${inter.className}`}>
                                     <p className="text-gray-500 text-sm">Budget</p>
                                     <p className="font-semibold">Set your travel range</p>
                                 </div>
@@ -173,9 +182,9 @@ const Hero: React.FC<HeroProps> = ({ backgroundImage }) => {
 
                             <div className="flex items-center gap-4 px-4">
                                 <LuUsers className="text-3xl text-pink-600" />
-                                <div className="flex flex-col">
+                                <div className={`flex flex-col ${inter.className}`}>
                                     <p className="text-gray-500 text-sm">Guests</p>
-                                    <p className="font-semibold">Who's coming with you?</p>
+                                    <p className="font-semibold">How many travelers?</p>
                                 </div>
                             </div>
                         </div>
@@ -183,7 +192,7 @@ const Hero: React.FC<HeroProps> = ({ backgroundImage }) => {
                             variants={buttonVariants}
                             whileHover="hover"
                             whileTap="tap"
-                            className="bg-pink-600 text-white px-6 py-3 rounded-full font-medium cursor-pointer flex items-center gap-2"
+                            className={`bg-pink-600 text-white px-6 py-3 rounded-full font-medium cursor-pointer flex items-center gap-2 ${inter.className}`}
                             onClick={() => window.location.href = ""}
                         >
                             Try Now <FaRegPaperPlane /> 
