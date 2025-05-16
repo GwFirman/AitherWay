@@ -21,10 +21,10 @@ const Navbar: React.FC<NavbarProps> = ({ logoText = "Aither Way", menuItems }) =
 
     return (
         <motion.nav
-            className="absolute top-0 left-0 w-full z-10  p-6 text-white"
+            className="absolute top-0 left-0 w-full z-20 p-6 text-white"
             initial={{ y: -10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-16">
@@ -58,7 +58,7 @@ const Navbar: React.FC<NavbarProps> = ({ logoText = "Aither Way", menuItems }) =
                         <motion.button
                             whileTap={{ scale: 1.06 }}
                             whileHover={{ scale: 1.02 }}
-                            className="text-white px-5 py-3 bg-pink-600 hover:bg-pink-500 rounded-4xl text-sm font-medium"
+                            className="text-white px-5 py-3 bg-pink-600 hover:bg-pink-500 rounded-4xl text-sm font-medium cursor-pointer"
                             onClick={() => window.location.href = "/login"}
                         >
                             Plan Your Trip
