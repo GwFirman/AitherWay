@@ -15,6 +15,62 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ logoText = "Aither Way", menuItems }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+    const navVariants = {
+        hidden: { y: -20, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+            transition: {
+                duration: 0.6,
+                ease: [0.6, 0.6, 0.6, 0.6],
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { y: -20, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+            transition: {
+                duration: 0.6,
+                ease: "easeOut"
+            }
+        }
+    };
+
+    const logoVariants = {
+        hidden: { x: -20, opacity: 0 },
+        visible: {
+            x: 0,
+            opacity: 1,
+            transition: {
+                duration: 0.6,
+                ease: "easeOut"
+            }
+        }
+    };
+
+    const buttonVariants = {
+        hidden: { scale: 0.8, opacity: 0 },
+        visible: {
+            scale: 1,
+            opacity: 1,
+            transition: {
+                duration: 0.6,
+                ease: "easeOut"
+            }
+        },
+        hover: {
+            scale: 1.05,
+            transition: {
+                duration: 0.2,
+                ease: "easeInOut"
+            }
+        },
+        tap: { scale: 0.95 }
+    };
+
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
@@ -22,30 +78,33 @@ const Navbar: React.FC<NavbarProps> = ({ logoText = "Aither Way", menuItems }) =
     return (
         <motion.nav
             className="absolute top-0 left-0 w-full z-20 p-6 text-white"
-            initial={{ y: -10, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            variants={navVariants}
+            initial="hidden"
+            animate="visible"
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-16">
-
-                    <div className="flex-shrink-0 flex items-center">
+                    <motion.div
+                        className="flex-shrink-0 flex items-center"
+                        variants={logoVariants}
+                    >
                         <span className="text-xl font-bold">
                             {logoText}
                         </span>
-                    </div>
+                    </motion.div>
 
                     <div className="hidden md:flex items-center justify-center flex-1">
                         <div className="flex space-x-4">
                             {menuItems.map((item, index) => (
                                 <motion.div
                                     key={index}
+                                    variants={itemVariants}
                                     whileHover={{ scale: 0.98 }}
                                     whileTap={{ scale: 0.96 }}
                                 >
                                     <Link
                                         href={item.href}
-                                        className="px-5 py-2 border rounded-full text-sm font-medium"
+                                        className="px-5 py-2 border rounded-full text-sm font-medium hover:bg-white/10 transition-colors duration-200"
                                     >
                                         {item.label}
                                     </Link>
@@ -54,93 +113,102 @@ const Navbar: React.FC<NavbarProps> = ({ logoText = "Aither Way", menuItems }) =
                         </div>
                     </div>
 
-                    <div className="hidden md:flex items-center">
+                    <motion.div
+                        className="hidden md:flex items-center"
+                        variants={itemVariants}
+                    >
                         <motion.button
-                            whileTap={{ scale: 1.06 }}
-                            whileHover={{ scale: 1.02 }}
-                            className="text-white px-5 py-3 bg-pink-600 hover:bg-pink-500 rounded-4xl text-sm font-medium cursor-pointer"
+                            variants={buttonVariants}
+                            whileHover="hover"
+                            whileTap="tap"
+                            className="text-white px-5 py-3 bg-pink-600 rounded-full text-sm font-medium cursor-pointer"
                             onClick={() => window.location.href = "/login"}
                         >
                             Plan Your Trip
                         </motion.button>
-                    </div>
+                    </motion.div>
 
-                    {/* Mobile menus */}
-                    <div className="flex md:hidden items-center">
-                        <button
+                    {/* Mobile menu button with smoother animation */}
+                    <motion.div
+                        className="flex md:hidden items-center"
+                        variants={itemVariants}
+                    >
+                        <motion.button
                             onClick={toggleMenu}
-                            className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
-                            aria-expanded="false"
+                            className="inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-white/10 transition-colors duration-200"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                         >
                             <span className="sr-only">Open main menu</span>
-                            {/* Hamburger icon */}
-                            <svg
-                                className={`${isMenuOpen ? 'hidden' : 'block'} h-6 w-6`}
+                            <motion.svg
+                                animate={isMenuOpen ? { rotate: 180 } : { rotate: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="h-6 w-6"
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
-                                aria-hidden="true"
                             >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    d="M4 6h16M4 12h16M4 18h16"
-                                />
-                            </svg>
-                            {/* X icon */}
-                            <svg
-                                className={`${isMenuOpen ? 'block' : 'hidden'} h-6 w-6`}
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    d="M6 18L18 6M6 6l12 12"
-                                />
-                            </svg>
-                        </button>
-                    </div>
+                                {isMenuOpen ? (
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M6 18L18 6M6 6l12 12"
+                                    />
+                                ) : (
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M4 6h16M4 12h16M4 18h16"
+                                    />
+                                )}
+                            </motion.svg>
+                        </motion.button>
+                    </motion.div>
                 </div>
             </div>
 
-            {/* Mobile menu panel */}
-            <AnimatePresence>
+            {/* Mobile menu with improved animation */}
+            <AnimatePresence mode="wait">
                 {isMenuOpen && (
                     <motion.div
                         key="mobile-menu"
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ duration: 0.3 }}
-                        className="md:hidden"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        className="md:hidden bg-white/10 backdrop-blur-sm rounded-lg mt-2"
                     >
-                        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                        <div className="px-2 pt-2 pb-3 space-y-1">
                             {menuItems.map((item, index) => (
-                                <Link
+                                <motion.div
                                     key={index}
-                                    href={item.href}
-                                    className="text-gray-600 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium"
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: index * 0.1 }}
                                 >
-                                    {item.label}
-                                </Link>
+                                    <Link
+                                        href={item.href}
+                                        className="text-white hover:bg-white/10 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+                                    >
+                                        {item.label}
+                                    </Link>
+                                </motion.div>
                             ))}
-                        </div>
-                        <div className="pt-4 pb-3 border-t border-gray-200">
-                            <div className="px-2 space-y-1">
+                            <motion.div
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: menuItems.length * 0.1 }}
+                            >
                                 <Link
                                     href="/login"
-                                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                                    className="text-white hover:bg-white/10 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
                                 >
                                     Plan Your Trip
                                 </Link>
-                            </div>
+                            </motion.div>
                         </div>
                     </motion.div>
                 )}

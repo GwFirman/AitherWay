@@ -52,7 +52,7 @@ const Hero: React.FC<HeroProps> = ({ backgroundImage }) => {
         tap: { scale: 0.95 }
     };
 
-    const searchBarVariants = {
+    const infoBarVariants = {
         hidden: { y: 50, opacity: 0 },
         visible: { 
             y: 0, 
@@ -140,10 +140,10 @@ const Hero: React.FC<HeroProps> = ({ backgroundImage }) => {
                     </div>
                 </motion.div>
 
-                {/* Search Bar */}
+                {/* Info Bar */}
                 <motion.div 
                     className="relative bg-white rounded-full shadow-sm p-4 top-28 max-w-7xl mx-auto w-full"
-                    variants={searchBarVariants}
+                    variants={infoBarVariants}
                 >
                     <div className="flex flex-wrap items-center gap-4">
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
@@ -183,10 +183,10 @@ const Hero: React.FC<HeroProps> = ({ backgroundImage }) => {
                             variants={buttonVariants}
                             whileHover="hover"
                             whileTap="tap"
-                            className="bg-pink-600 text-white px-6 py-3 rounded-full font-medium cursor-pointer flex items-center gap-2 hover:bg-teal-700"
+                            className="bg-pink-600 text-white px-6 py-3 rounded-full font-medium cursor-pointer flex items-center gap-2"
                             onClick={() => window.location.href = ""}
                         >
-                            Find Yours <FaRegPaperPlane /> 
+                            Try Now <FaRegPaperPlane /> 
                         </motion.button>
                     </div>
                 </motion.div>
