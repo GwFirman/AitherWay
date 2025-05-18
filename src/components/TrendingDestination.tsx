@@ -48,7 +48,7 @@ const TrendingDestination = () => {
         <section id='trending-destination' className="py-16 container mx-auto px-4">
             <div className='text-center mb-12'>
                 <span className={`text-rose-500 text-xl font-medium ${playwrite.className}`}>Exciting Destinations</span>
-                <h2 className={`text-3xl font-bold mt-2 ${inter.className}`}>Popular Destinations</h2>
+                <h2 className={`text-3xl font-bold mt-2 text-gray-800 ${inter.className}`}>Popular Destinations</h2>
             </div>
 
             <div className="flex flex-col items-center justify-center">
