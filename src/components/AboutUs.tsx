@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 import { Inter } from "next/font/google";
@@ -26,14 +25,6 @@ const nunito = Nunito({
   display: "swap",
 });
 
-const badges = [
-  { text: "Personalized", color: "bg-rose-500 text-white" },
-  { text: "Smart AI", color: "bg-teal-500 text-white" },
-  { text: "Effortless", color: "bg-orange-400 text-white" },
-  { text: "Curated Picks", color: "bg-indigo-500 text-white" },
-  { text: "Explore Indonesia", color: "bg-green-500 text-white" },
-];
-
 const AboutUs = () => {
   return (
     <section id="about-us" className="py-8 container mx-auto px-4">
@@ -42,7 +33,11 @@ const AboutUs = () => {
           {/* Left */}
           <div className="size-1/4 grow">
             <div className="relative h-full w-full rounded-lg p-4 bg-cover bg-no-repeat bg-center flex items-center justify-center">
-              <div className="absolute z-10 bg-teal-600 rounded-t-3xl w-4/5 h-139 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 shadow-sm" />
+              <div
+                className="absolute z-10 w-4/5 h-[555px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+             bg-gradient-to-br from-teal-500 to-emerald-600
+             rounded-t-[3rem] shadow-lg shadow-emerald-300/30"
+              />
               {/* <div className="absolute z-30 bg-teal-50 rounded-3xl w-20 h-20 " /> */}
               <img
                 src={Person.src}
@@ -75,28 +70,16 @@ const AboutUs = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.5 }}
             >
-              We Help You Uncover {""}
-              <span className="bg-gradient-to-r from-teal-600 to-rose-600 bg-clip-text text-transparent">
+              We Help You Uncover{" "}
+              <span className="bg-gradient-to-r from-yellow-400 via-pink-500 to-blue-500 bg-clip-text text-transparent">
                 Indonesia's Hidden Gems
-                <svg className="absolute -bottom-2 left-0 w-full" height="8">
-                  <motion.path
-                    d="M0 4 Q50 0, 100 4 T200 4"
-                    stroke="#0D9488"
-                    strokeWidth="2"
-                    fill="none"
-                    initial={{ pathLength: 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ delay: 0.8, duration: 0.8 }}
-                  />
-                </svg>
-              </span>
-              {" "}
+              </span>{" "}
               Effortlessly and Enjoyably
             </motion.h2>
 
             {/* Description */}
             <motion.p
-              className={`text-gray-600 mt-6 text-lg leading-relaxed ${inter.className}`}
+              className={`text-gray-600 mt-6 text-xl leading-relaxed ${inter.className}`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.5 }}
@@ -111,35 +94,18 @@ const AboutUs = () => {
               beautifully simple.
             </motion.p>
 
-            <motion.p
-            
-            >
-
-            </motion.p>
-
-
             {/* Badges Section */}
-            <motion.div
-              className="mt-12 flex flex-wrap gap-3"
+            <motion.ul
+              className="mt-12 pl-4 grid grid-flow-col grid-rows-2 gap-4 text-xl text-gray-800 list-disc font-semibold"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.5 }}
             >
-              {badges.map((badge, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.6 + index * 0.1, duration: 0.3 }}
-                >
-                  <Badge
-                    className={`px-6 py-2.5 rounded-full text-md font-medium shadow-sm ${badge.color}`}
-                  >
-                    {badge.text}
-                  </Badge>
-                </motion.div>
-              ))}
-            </motion.div>
+              <li>Prompt-Based Travel Suggestions</li>
+              <li>AI Curated Destination Picks</li>
+              <li>Top 5 Personalized Recommendations</li>
+              <li>Mapped Routes to Your Dream Getaway</li>
+            </motion.ul>
 
             {/* Button */}
             <motion.div
@@ -147,7 +113,7 @@ const AboutUs = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8, duration: 0.5 }}
             >
-              <Button className="rounded-full mt-21 text-xl text-white px-12 py-6 bg-rose-500 hover:bg-rose-500 cursor-pointer items-center gap-2">
+              <Button className="rounded-full mt-12 text-lg px-6 py-3 text-white bg-rose-500 hover:bg-rose-600 transition-colors duration-300 cursor-pointer items-center gap-2 ">
                 More About Us <FaArrowRightLong />
               </Button>
             </motion.div>
