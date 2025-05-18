@@ -9,6 +9,7 @@
 		"lint": "next lint"
 	},
 	"dependencies": {
+		"@google/genai": "^0.14.1",
 		"@hookform/resolvers": "^5.0.1",
 		"@prisma/client": "^6.8.2",
 		"@radix-ui/react-accordion": "^1.2.10",
@@ -61,7 +62,6 @@
 		"@types/node": "^20.17.47",
 		"@types/react": "^19.1.4",
 		"@types/react-dom": "^19.1.5",
-		"@types/yauzl": "^2.10.3",
 		"eslint": "^9.27.0",
 		"eslint-config-next": "15.3.1",
 		"tailwindcss": "^4.1.7",
