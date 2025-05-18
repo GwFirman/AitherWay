@@ -1,14 +1,21 @@
-'use client';
+"use client";
 
 import { useEffect } from "react";
+import { motion } from "framer-motion";
+
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
+import TrendingDestination from "@/components/TrendingDestination";
+import AboutUs from "@/components/AboutUs";
+
+import PolaroidPhotoMbuluk from "@/images/PantaiMbuluk.jpg";
 
 export default function Home() {
   const menuItems = [
     { label: "Home", href: "#home" },
+    { label: "Explore", href: "#explore" },
+    { label: "Ask Ai", href: "#askAi" },
     { label: "About", href: "#about" },
-    { label: "Contact", href: "#contact" }
   ];
 
   useEffect(() => {
@@ -38,9 +45,31 @@ export default function Home() {
   return (
     <>
       <Navbar logoText="AitherWay" menuItems={menuItems} />
-      <main>
+      <main className="overflow-hidden">
         <Hero />
+
+        {/* Floating Polaroid */}
+        <motion.div
+          initial={{ opacity: 0, y: 60, rotate: 24, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, rotate: -12, scale: 0.95 }}
+          transition={{ delay: 1.6, duration: 0.7, ease: "easeOut" }}
+          className="absolute z-50 bottom-40 left-40 mx-auto flex justify-start"
+        >
+          <div className="absolute w-[200px] h-[280px] rotate-18 scale-95">
+            <div className="bg-white p-2 shadow-md rounded-md w-full h-full flex items-center justify-center">
+              <img
+                src={PolaroidPhotoMbuluk.src}
+                alt="Polaroid"
+                className="w-full h-full object-cover rounded"
+              />
+            </div>
+          </div>
+        </motion.div>
+        {/* End Floating Polaroid */}
+
+        <TrendingDestination />
+        <AboutUs />
       </main>
     </>
   );
-};
+}
