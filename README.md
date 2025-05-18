@@ -22,6 +22,7 @@ Beda pemakaian soalnya bakal di jalankannya kalo mau generate dataset nya.
 ## Panduan Penggunaan
 1. Pastikan semua dependensi sudah terinstal dengan perintah:
    ```bash
+   npm i bun -g
    bun install
    bun prisma generate
-   bun scrapt
+   bun dev
