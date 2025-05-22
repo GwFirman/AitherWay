@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
 
 import { Inter } from "next/font/google";
 import { Playwrite_DE_LA } from "next/font/google";
@@ -26,49 +27,90 @@ const nunito = Nunito({
 });
 
 const AboutUs = () => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    // Add intersection observer to trigger animations when section is in view
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const section = document.getElementById("about-us");
+    if (section) {
+      observer.observe(section);
+    }
+
+    return () => {
+      if (section) {
+        observer.unobserve(section);
+      }
+    };
+  }, []);
+
+  const variants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
+
   return (
     <section id="about-us" className="py-8 container mx-auto px-4">
       <div className="max-w-7xl mx-auto">
-        <div className="flex gap-2">
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+          
           {/* Left */}
-          <div className="size-1/4 grow">
-            <div className="relative h-full w-full rounded-lg p-4 bg-cover bg-no-repeat bg-center flex items-center justify-center">
+          <motion.div
+            className="w-full lg:w-2/5 lg:flex justify-center items-center hidden"
+            initial="hidden"
+            animate={isVisible ? "visible" : "hidden"}
+            variants={variants}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="relative w-[280px] sm:w-[320px] md:w-[380px] lg:w-[420px] aspect-[3/4]">
               <div
-                className="absolute z-10 w-4/5 h-[555px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-             bg-gradient-to-br from-teal-500 to-emerald-600
-             rounded-t-[3rem] shadow-lg shadow-emerald-300/30"
+                className="absolute z-10 w-[85%] h-[95%] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+                bg-gradient-to-br from-teal-500 to-emerald-600
+                rounded-t-[3rem] shadow-lg shadow-emerald-300/30"
               />
-              {/* <div className="absolute z-30 bg-teal-50 rounded-3xl w-20 h-20 " /> */}
-              <img
-                src={Person.src}
-                className="relative z-20 w-full h-auto object-contain"
-              />
+              <div className="absolute inset-0 z-20 flex items-center justify-center">
+                <img
+                  src={Person.src}
+                  alt="Person illustration"
+                  className="w-full h-full object-contain md:mt-1.5"
+                />
+              </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Right */}
           <motion.div
-            className="size-1/2 grow text-left mb-12 mt-3"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            className="w-full lg:w-3/5 text-left"
+            initial="hidden"
+            animate={isVisible ? "visible" : "hidden"}
+            variants={variants}
+            transition={{ duration: 0.6, delay: 0.2 }}
           >
             {/* Title */}
             <motion.span
-              className={`inline-block text-rose-500 text-xl font-medium ${playwrite.className}`}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
+              className={`inline-block text-rose-500 text-lg sm:text-xl font-medium ${playwrite.className}`}
+              variants={variants}
+              transition={{ delay: 0.3 }}
             >
               About Us
             </motion.span>
 
             {/* Sub-Title */}
             <motion.h2
-              className={`text-4xl font-bold mt-4 leading-tight text-gray-800 ${nunito.className}`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
+              className={`text-2xl sm:text-3xl lg:text-4xl font-bold mt-4 leading-tight text-gray-800 ${nunito.className}`}
+              variants={variants}
+              transition={{ delay: 0.4 }}
             >
               We Help You Uncover{" "}
               <span className="bg-gradient-to-r from-yellow-400 via-pink-500 to-blue-500 bg-clip-text text-transparent">
@@ -79,10 +121,9 @@ const AboutUs = () => {
 
             {/* Description */}
             <motion.p
-              className={`text-gray-600 mt-6 text-xl leading-relaxed ${inter.className}`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
+              className={`text-gray-600 mt-4 text-base sm:text-lg lg:text-xl leading-relaxed ${inter.className}`}
+              variants={variants}
+              transition={{ delay: 0.5 }}
             >
               AitherWay is an AI-powered travel assistant that helps you find
               your perfect destination—just by asking. Whether you're dreaming
@@ -94,12 +135,11 @@ const AboutUs = () => {
               beautifully simple.
             </motion.p>
 
-            {/* Badges Section */}
+            {/* List */}
             <motion.ul
-              className="mt-12 pl-4 grid grid-flow-col grid-rows-2 gap-4 text-xl text-gray-800 list-disc font-semibold"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
+              className="mt-8 lg:mt-4 pl-4 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-base sm:text-lg lg:text-xl text-gray-800 list-disc font-semibold"
+              variants={variants}
+              transition={{ delay: 0.6 }}
             >
               <li>Prompt-Based Travel Suggestions</li>
               <li>AI Curated Destination Picks</li>
@@ -108,12 +148,8 @@ const AboutUs = () => {
             </motion.ul>
 
             {/* Button */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8, duration: 0.5 }}
-            >
-              <Button className="rounded-full mt-12 text-lg px-6 py-3 text-white bg-rose-500 hover:bg-rose-600 transition-colors duration-300 cursor-pointer items-center gap-2 ">
+            <motion.div variants={variants} transition={{ delay: 0.7 }}>
+              <Button className="rounded-full mt-8 lg:mt-6 text-base sm:text-lg px-5 sm:px-6 py-2.5 sm:py-3 text-white bg-rose-500 hover:bg-rose-600 transition-colors duration-300 cursor-pointer flex items-center gap-2">
                 More About Us <FaArrowRightLong />
               </Button>
             </motion.div>
