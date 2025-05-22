@@ -8,7 +8,9 @@ import Hero from "@/components/Hero";
 import TrendingDestination from "@/components/TrendingDestination";
 import AboutUs from "@/components/AboutUs";
 
+
 import PolaroidPhotoMbuluk from "@/images/PantaiMbuluk.jpg";
+import Footer from "@/components/Footer";
 
 export default function Home() {
   const menuItems = [
@@ -69,6 +71,7 @@ export default function Home() {
 
         <TrendingDestination />
         <AboutUs />
+        <Footer />
       </main>
     </>
   );
