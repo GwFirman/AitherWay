@@ -1,9 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { IconArrowLeft, IconArrowRight } from "@tabler/icons-react";
-import { AnimatePresence } from "motion/react";
-import { useEffect, useState } from "react";
 import { Inter } from "next/font/google";
 import { Playwrite_DE_LA } from "next/font/google";
 import { InfiniteMovingCards } from "./ui/infinite-moving-cards";
