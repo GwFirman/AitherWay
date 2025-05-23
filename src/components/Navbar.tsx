@@ -211,7 +211,7 @@ const Navbar: React.FC<NavbarProps> = ({ logoText = "Aither Way", menuItems }) =
                                 transition={{ delay: menuItems.length * 0.1 }}
                             >
                                 <Link
-                                    href="/login"
+                                    href={"/login"}
                                     className="text-white hover:bg-white/10 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
                                 >
                                     Plan Your Trip

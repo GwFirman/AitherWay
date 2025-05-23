@@ -46,8 +46,12 @@ const destination = [
 const TrendingDestination = () => {
   return (
     <section id="trending-destination" className="py-16 container mx-auto px-4">
-      {/* Title section remains the same */}
-      <div className="text-center mb-12">
+      <motion.div
+        className="text-center mb-12"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <span
           className={`inline-blocktext-lg sm:text-xl font-medium text-rose-500 ${playwrite.className}`}
         >
@@ -58,7 +62,7 @@ const TrendingDestination = () => {
         >
           Popular Destinations
         </h2>
-      </div>
+      </motion.div>
 
       <div className="flex flex-col items-center justify-center">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">

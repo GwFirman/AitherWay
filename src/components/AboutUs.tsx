@@ -9,6 +9,7 @@ import { Nunito } from "next/font/google";
 import { FaArrowRightLong } from "react-icons/fa6";
 
 import Person from "@/images/Person.png";
+import Link from "next/link";
 
 const inter = Inter({
   weight: ["400", "500", "600", "700"],
@@ -64,7 +65,6 @@ const AboutUs = () => {
     <section id="about-us" className="py-8 container mx-auto px-4">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-          
           {/* Left */}
           <motion.div
             className="w-full lg:w-2/5 lg:flex justify-center items-center hidden"
@@ -121,7 +121,7 @@ const AboutUs = () => {
 
             {/* Description */}
             <motion.p
-              className={`text-gray-600 mt-4 text-base sm:text-lg lg:text-xl leading-relaxed ${inter.className}`}
+              className={`text-gray-600 mt-4 text-base sm:text-lg leading-relaxed ${inter.className}`}
               variants={variants}
               transition={{ delay: 0.5 }}
             >
@@ -149,8 +149,10 @@ const AboutUs = () => {
 
             {/* Button */}
             <motion.div variants={variants} transition={{ delay: 0.7 }}>
-              <Button className="rounded-full mt-8 lg:mt-6 text-base sm:text-lg px-5 sm:px-6 py-2.5 sm:py-3 text-white bg-rose-500 hover:bg-rose-600 transition-colors duration-300 cursor-pointer flex items-center gap-2">
-                More About Us <FaArrowRightLong />
+              <Button className="rounded-full mt-8 lg:mt-6 text-base sm:text-lg px-6 py-4 sm:py-5 text-white bg-rose-500 hover:bg-rose-500 shadow-sm cursor-pointer flex items-center gap-2">
+                <Link href="/login" className="flex items-center gap-2">
+                  More About Us <FaArrowRightLong />
+                </Link>
               </Button>
             </motion.div>
           </motion.div>

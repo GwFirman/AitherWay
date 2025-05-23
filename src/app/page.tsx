@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import TrendingDestination from "@/components/TrendingDestination";
 import AboutUs from "@/components/AboutUs";
+import Footer from "@/components/Footer";
 
 import PolaroidPhotoMbuluk from "@/images/PantaiMbuluk.jpg";
 import UserReview from "@/components/UserReview";
@@ -70,7 +71,8 @@ export default function Home() {
 
         <TrendingDestination />
         <AboutUs />
-        {/* <UserReview /> */}
+        <UserReview />
+        <Footer />
       </main>
     </>
   );
