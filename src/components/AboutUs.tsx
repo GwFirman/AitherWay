@@ -137,7 +137,7 @@ const AboutUs = () => {
 
             {/* List */}
             <motion.ul
-              className="mt-8 lg:mt-4 pl-4 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-base sm:text-lg lg:text-xl text-gray-800 list-disc font-semibold"
+              className="mt-8 lg:mt-4 pl-4 grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-5 text-base sm:text-lg lg:text-xl text-gray-800 list-disc font-semibold"
               variants={variants}
               transition={{ delay: 0.6 }}
             >
