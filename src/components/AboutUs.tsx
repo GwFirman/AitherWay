@@ -65,6 +65,7 @@ const AboutUs = () => {
     <section id="about-us" className="py-8 container mx-auto px-4">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+          
           {/* Left */}
           <motion.div
             className="w-full lg:w-2/5 lg:flex justify-center items-center hidden"
@@ -137,7 +138,7 @@ const AboutUs = () => {
 
             {/* List */}
             <motion.ul
-              className="mt-8 lg:mt-4 pl-4 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-base sm:text-lg lg:text-xl text-gray-800 list-disc font-semibold"
+              className="mt-8 lg:mt-4 pl-4 grid grid-cols-1 sm:grid-cols-2 sm:gap-3 md:gap-4 lg:gap-6 text-base sm:text-lg lg:text-xl text-gray-800 list-disc font-semibold"
               variants={variants}
               transition={{ delay: 0.6 }}
             >

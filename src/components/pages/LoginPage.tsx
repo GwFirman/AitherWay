@@ -1,14 +1,11 @@
-"use strict"
+"use client";
 
-import React from 'react';
+import Login from "@/components/Login"
 
-
-const LoginPage = () => {
-    return (
-        <div>
-            <p>ini halaman login</p>
-        </div>
-    )
+export default function LoginPage() {
+  return (
+    <>
+      <Login />
+    </>
+  );
 };
-
-export default LoginPage;
