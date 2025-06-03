@@ -1,27 +1,16 @@
 "use client";
 
-import React, { FormEvent, useState } from "react";
-import { Checkbox } from "@/components/ui/checkbox";
+import React, {  } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectFade } from "swiper/modules";
 import { motion } from "framer-motion";
 import "swiper/css";
 import "swiper/css/effect-fade";
-import Link from "next/link";
 
 import googleIcon from "@/assets/images/element/Google.png";
-import azureIcon from "@/assets/images/element/Azure.png";
 import facebookIcon from "@/assets/images/element/Facebook.png"
 import twitterIcon from "@/assets/images/element/Twitter.png"
-import appleIcon from "@/assets/images/element/Apple.png"
-import {
-  MdAlternateEmail,
-  MdLock,
-  MdVisibility,
-  MdVisibilityOff,
-} from "react-icons/md";
 import ulunDanu from "@/assets/images/UlunDanuBaratanBali.jpg";
 import nusaDua from "@/assets/images/NusaDuaBali.jpg";
 import gunungRinjani from "@/assets/images/gunungRinjani.jpg";
@@ -61,30 +50,8 @@ const fadeUp = {
 };
 
 const Login = () => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
 
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    remember: false,
-  });
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    // Handle login logic here
-    console.log("Form submitted:", formData);
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
-
-  const handleOAuthLogin = (provider: 'google' | 'facebook' | 'apple' | 'twitter') => {
+  const handleOAuthLogin = (provider: 'google' | 'facebook' | 'twitter') => {
     createClient().auth.signInWithOAuth({ provider });
   };
 
