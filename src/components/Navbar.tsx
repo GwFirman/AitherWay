@@ -20,11 +20,19 @@ const inter = Inter({
   display: "swap",
 });
 
-const Navbar: React.FC<NavbarProps> = ({
-  logoText = "Aither Way",
-  menuItems,
-}) => {
+
+const Navbar: React.FC = () => {
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const logoText = "Aither Way";
+
+  const menuItems = [
+    { label: "Home", href: "#home" },
+    { label: "Explore", href: "#explore" },
+    { label: "Ask Ai", href: "#askAi" },
+    { label: "About", href: "#about" },
+  ];
 
   const navVariants = {
     hidden: { y: -20, opacity: 0 },

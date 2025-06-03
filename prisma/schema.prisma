@@ -14,6 +14,15 @@ datasource db {
     directUrl = env("DIRECT_URL")
 }
 
+model Users {
+    id        String   @id @default(uuid())
+    nama      String
+    email     String   @unique
+    password  String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
 model Maps {
     id        String   @id @default(uuid())
     nama      String   @unique
@@ -39,4 +48,30 @@ model Reviews {
 
     maps   Maps   @relation(fields: [mapsId], references: [id], onDelete: Cascade)
     mapsId String
+}
+
+model Conversations {
+    id        String   @id @default(uuid())
+    nama      String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    messages Messages[]
+}
+
+model Messages {
+    id        String   @id @default(uuid())
+    name      String
+    sender    Sender   @default(user)
+    content   String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    Conversations   Conversations @relation(fields: [conversationsId], references: [id])
+    conversationsId String
+}
+
+enum Sender {
+    user
+    bot
 }
