@@ -11,7 +11,7 @@ import "swiper/css";
 import "swiper/css/effect-fade";
 import Link from "next/link";
 
-import googleIcon from "@/images/element/Google.png";
+import googleIcon from "@/assets/images/element/Google.png";
 import {
   MdAlternateEmail,
   MdLock,
@@ -19,10 +19,10 @@ import {
   MdVisibility,
   MdVisibilityOff,
 } from "react-icons/md";
-import ulunDanu from "@/images/UlunDanuBaratanBali.jpg";
-import nusaDua from "@/images/NusaDuaBali.jpg";
-import gunungRinjani from "@/images/gunungRinjani.jpg";
-import pantaiBalangan from "@/images/PantaiBalangan.jpg";
+import ulunDanu from "@/assets/images/UlunDanuBaratanBali.jpg";
+import nusaDua from "@/assets/images/NusaDuaBali.jpg";
+import gunungRinjani from "@/assets/images/gunungRinjani.jpg";
+import pantaiBalangan from "@/assets/images/PantaiBalangan.jpg";
 
 const carouselData = [
   {
