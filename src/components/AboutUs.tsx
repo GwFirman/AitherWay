@@ -61,22 +61,22 @@ const AboutUs = () => {
 		visible: { opacity: 1, y: 0 },
 	};
 
-  return (
-    <section id="about-us" className="py-8 container mx-auto px-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-          
-          {/* Left */}
-          <motion.div
-            className="w-full lg:w-2/5 lg:flex justify-center items-center hidden"
-            initial="hidden"
-            animate={isVisible ? "visible" : "hidden"}
-            variants={variants}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="relative w-[280px] sm:w-[320px] md:w-[380px] lg:w-[420px] aspect-[3/4]">
-              <div
-                className="absolute z-10 w-[85%] h-[95%] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+	return (
+		<section id="about-us" className="py-8 container mx-auto px-4">
+			<div className="max-w-7xl mx-auto">
+				<div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+
+					{/* Left */}
+					<motion.div
+						className="w-full lg:w-2/5 lg:flex justify-center items-center hidden"
+						initial="hidden"
+						animate={isVisible ? "visible" : "hidden"}
+						variants={variants}
+						transition={{ duration: 0.6 }}
+					>
+						<div className="relative w-[280px] sm:w-[320px] md:w-[380px] lg:w-[420px] aspect-[3/4]">
+							<div
+								className="absolute z-10 w-[85%] h-[95%] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
                 bg-gradient-to-br from-teal-500 to-emerald-600
                 rounded-t-[3rem] shadow-lg shadow-emerald-300/30"
 							/>
@@ -104,17 +104,17 @@ const AboutUs = () => {
 							searching—AitherWay makes discovering Indonesia beautifully simple.
 						</motion.p>
 
-            {/* List */}
-            <motion.ul
-              className="mt-8 lg:mt-4 pl-4 grid grid-cols-1 sm:grid-cols-2 sm:gap-3 md:gap-4 lg:gap-6 text-base sm:text-lg lg:text-xl text-gray-800 list-disc font-semibold"
-              variants={variants}
-              transition={{ delay: 0.6 }}
-            >
-              <li>Prompt-Based Travel Suggestions</li>
-              <li>AI Curated Destination Picks</li>
-              <li>Top 5 Personalized Recommendations</li>
-              <li>Mapped Routes to Your Dream Getaway</li>
-            </motion.ul>
+						{/* List */}
+						<motion.ul
+							className="mt-8 lg:mt-4 pl-4 grid grid-cols-1 sm:grid-cols-2 sm:gap-3 md:gap-4 lg:gap-6 text-base sm:text-lg lg:text-xl text-gray-800 list-disc font-semibold"
+							variants={variants}
+							transition={{ delay: 0.6 }}
+						>
+							<li>Prompt-Based Travel Suggestions</li>
+							<li>AI Curated Destination Picks</li>
+							<li>Top 5 Personalized Recommendations</li>
+							<li>Mapped Routes to Your Dream Getaway</li>
+						</motion.ul>
 
 						{/* Button */}
 						<motion.div variants={variants} transition={{ delay: 0.7 }}>

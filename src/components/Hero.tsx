@@ -8,6 +8,7 @@ import { FaArrowRightLong } from "react-icons/fa6";
 import BeachHero from "@/assets/images/BeachHero.jpg";
 import ElementArrow from "@/assets/images/element/Arrow.png";
 import PolaroidPhotoLombok from "@/assets/images/PantaiPinkLombok.jpg";
+import SearchBar from "@/components/SearchBar";
 
 interface HeroProps {
 	backgroundImage?: string;
@@ -28,7 +29,6 @@ const Hero: React.FC<HeroProps> = ({ backgroundImage }) => {
 		setIsLoaded(true);
 	}, []);
 
-	// Animation variants
 	const containerVariants = {
 		hidden: { opacity: 0 },
 		visible: {
@@ -49,34 +49,6 @@ const Hero: React.FC<HeroProps> = ({ backgroundImage }) => {
 		},
 	};
 
-	const buttonVariants = {
-		hidden: { scale: 0.8, opacity: 0 },
-		visible: {
-			scale: 1,
-			opacity: 1,
-			transition: { duration: 0.3, ease: "easeOut" },
-		},
-		hover: {
-			scale: 1.05,
-			transition: { duration: 0.2 },
-		},
-		tap: { scale: 0.95 },
-	};
-
-	const infoBarVariants = {
-		hidden: { y: 50, opacity: 0 },
-		visible: {
-			y: 0,
-			opacity: 1,
-			transition: {
-				duration: 0.5,
-				delay: 0.8,
-				ease: "easeOut",
-			},
-		},
-	};
-
-	const [show, setShow] = useState(false);
 	return (
 		<div className="relative min-h-screen w-full overflow-hidden">
 			<motion.div
@@ -114,32 +86,7 @@ const Hero: React.FC<HeroProps> = ({ backgroundImage }) => {
 				</div>
 
 				{/* Search Bar */}
-				<div className="relative  p-[3.55px] max-w-2xl rounded-full mx-auto w-full">
-					{show && <motion.div animate={{ width: ["0%", "100%"], opacity: [0, 1] }} transition={{ duration: 0.5, type: "tween" }} className="rounded-full bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 absolute inset-0"></motion.div>}
-					<motion.div className="relative border border-indigo-600 bg-white rounded-full shadow-sm p-2 " variants={infoBarVariants}>
-						<div className="flex flex-wrap items-center gap-2">
-							<div className="flex-1">
-								<motion.input
-									onHoverEnd={() => {
-										setShow(false);
-									}}
-									onHoverStart={() => {
-										setShow(true);
-									}}
-									type="text"
-									id="search"
-									name="search"
-									autoComplete="off"
-									placeholder="Ask AI your next destination…"
-									className={`w-full px-6 py-3 rounded-full text-base text-gray-700 placeholder-gray-40 outline-none ${inter.className}`}
-								/>
-							</div>
-							<motion.button variants={buttonVariants} whileHover="hover" whileTap="tap" className={`bg-pink-600 text-white px-5 py-2.5 rounded-full font-medium cursor-pointer flex items-center gap-2 ${inter.className}`} onClick={() => (window.location.href = "")}>
-								Try Now <FaArrowRightLong />
-							</motion.button>
-						</div>
-					</motion.div>
-				</div>
+				<SearchBar />
 
 				{/* Floating Polaroid */}
 				<motion.div className="absolute z-50 right-14 bottom-16 sm:bottom-24 md:bottom-32 justify-start hidden xl:flex" initial={{ opacity: 0, y: 60, rotate: -24, scale: 0.9 }} animate={{ opacity: 1, y: 0, rotate: -12, scale: 0.95 }} transition={{ delay: 1.4, duration: 0.7, ease: "easeOut" }}>

@@ -1,10 +1,10 @@
 "use client";
 
-import React, {  } from "react";
 import { Button } from "@/components/ui/button";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectFade } from "swiper/modules";
 import { motion } from "framer-motion";
+import { createClient } from "@/utils/supabase/client";
 import "swiper/css";
 import "swiper/css/effect-fade";
 
@@ -15,7 +15,7 @@ import ulunDanu from "@/assets/images/UlunDanuBaratanBali.jpg";
 import nusaDua from "@/assets/images/NusaDuaBali.jpg";
 import gunungRinjani from "@/assets/images/gunungRinjani.jpg";
 import pantaiBalangan from "@/assets/images/PantaiBalangan.jpg";
-import { createClient } from "@/utils/supabase/client";
+
 
 const carouselData = [
   {

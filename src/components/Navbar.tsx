@@ -29,8 +29,8 @@ const Navbar: React.FC = () => {
 
   const menuItems = [
     { label: "Home", href: "#home" },
+    { label: "Ask Ai", href: "/askAi" },
     { label: "Explore", href: "#explore" },
-    { label: "Ask Ai", href: "#askAi" },
     { label: "About", href: "#about" },
   ];
 

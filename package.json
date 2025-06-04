@@ -37,7 +37,6 @@
 		"@radix-ui/react-tooltip": "^1.2.6",
 		"@supabase/ssr": "^0.6.1",
 		"@supabase/supabase-js": "^2.49.9",
-		"@supabase/supabase-js": "^2.49.9",
 		"@tabler/icons-react": "^3.34.0",
 		"axios": "^1.9.0",
 		"class-variance-authority": "^0.7.1",
