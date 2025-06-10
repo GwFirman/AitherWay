@@ -8,7 +8,7 @@ import { FaArrowRightLong } from "react-icons/fa6";
 import BeachHero from "@/assets/images/BeachHero.jpg";
 import ElementArrow from "@/assets/images/element/Arrow.png";
 import PolaroidPhotoLombok from "@/assets/images/PantaiPinkLombok.jpg";
-import SearchBar from "@/components/SearchBar";
+import SearchBar from "@/components/ui/search-bar";
 
 interface HeroProps {
 	backgroundImage?: string;

@@ -28,10 +28,9 @@ const Navbar: React.FC = () => {
   const logoText = "Aither Way";
 
   const menuItems = [
-    { label: "Home", href: "#home" },
+    { label: "Home", href: "/" },
+    { label: "Docs", href: "/document"},
     { label: "Ask Ai", href: "/askAi" },
-    { label: "Explore", href: "#explore" },
-    { label: "About", href: "#about" },
   ];
 
   const navVariants = {
