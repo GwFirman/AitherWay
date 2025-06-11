@@ -27,11 +27,12 @@ model Maps {
     id        String   @id @default(uuid())
     nama      String   @unique
     rating    String
-    deskripsi String
+    deskripsi String?  @default("")
     alamat    String
     gambar    String
     longitude Float
     latitude  Float
+    harga     Int?     @default(0)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 

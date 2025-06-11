@@ -2,7 +2,9 @@ import GMaps from "../lib/gMaps";
 
 async function main() {
 	const gMapsInstance = new GMaps();
-	await gMapsInstance.getDetails("pantai cilacap");
+	// Jadikan true kalo mau save ke Database
+	const saveToDB = false;
+	await gMapsInstance.getDetails("gunung", saveToDB);
 	console.log("sudah done");
 }
 main();
