@@ -32,6 +32,7 @@ model Maps {
     gambar       String
     longitude    Float
     latitude     Float
+    harga        String   @default("")
     total_ulasan Int      @default(0)
     createdAt    DateTime @default(now())
     updatedAt    DateTime @updatedAt

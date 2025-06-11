@@ -1,6 +1,7 @@
 import puppeteer, { Browser, Page } from "puppeteer-core";
 import path from "path";
 import { PrismaClient } from "@prisma/client";
+import { GoogleGenAI } from "@google/genai";
 
 const prisma = new PrismaClient();
 
@@ -72,7 +73,6 @@ export default class GMaps {
 				}
 			});
 
-			page.setDefaultTimeout(120_000);
 			await page.goto("https://www.google.com/maps");
 			await page.type("input[name='q']", search);
 			await page.keyboard.press("Enter");
@@ -109,96 +109,160 @@ export default class GMaps {
 						if (!aTag) continue;
 
 						await aTag.evaluate((el) => el.scrollIntoView({ behavior: "instant", block: "start" }));
-						await page.waitForNetworkIdle({ concurrency: 7 });
+						await page.waitForNetworkIdle({ concurrency: 8 });
 
-						// Repeat click untuk aTag
 						const aTagClicked = await this.repeatClickUntilSuccess(page, aTag);
 						if (!aTagClicked) continue;
 
-						await page.waitForNetworkIdle({ concurrency: 7 });
+						await page.waitForNetworkIdle({ concurrency: 8 });
 						await page.waitForSelector(`div[jstcache="4"]`, { visible: true });
 
 						await page.waitForSelector(`div[jstcache="4"] h1`, { visible: true });
 						const nama = await page.$eval(`div[jstcache="4"] h1`, (el) => el.textContent?.trim());
-						await page.waitForSelector(`div[jstcache="4"] div.Io6YTe`, { visible: true });
-						const alamat = await page.$eval(`div[jstcache="4"] div.Io6YTe`, (el) => el.textContent?.trim());
-						await page.waitForSelector(`div[jstcache="4"] img`, { visible: true });
-						const gambar = await page.$eval(`div[jstcache="4"] img`, (el) => el.getAttribute("src"));
-						await page.waitForSelector(`div[jstcache="4"] div.TIHn2 .F7nice span span span[aria-label]`, { visible: true });
-						const total_ulasan = await page.$eval(`div[jstcache="4"] div.TIHn2 .F7nice span span span[aria-label]`, (el) => el.textContent?.match(/\d[\d.,]*/)?.[0] || "");
 
-						// Repeat click untuk tab ulasan
-						await page.evaluate(() => {
-							const buttons = Array.from(document.querySelectorAll('div[role="tablist"] > button'));
-							const target = buttons.find((btn) => btn.textContent?.trim().toLowerCase() === "ulasan");
-							if (target) {
-								// Repeat click logic langsung di evaluate
-								let attempts = 0;
-								const maxAttempts = 10;
-								const clickInterval = setInterval(() => {
-									attempts++;
-									try {
-										(target as HTMLElement).click();
-										console.log(`Tab ulasan clicked on attempt ${attempts}`);
-										clearInterval(clickInterval);
-									} catch (error) {
-										if (attempts >= maxAttempts) {
-											console.log(`Failed to click tab ulasan after ${maxAttempts} attempts`);
-											clearInterval(clickInterval);
-										}
-									}
-								}, 1000);
+						if (saveToDB && nama) {
+							const existingPlace = await prisma.maps.findUnique({
+								where: { nama: nama },
+							});
+							if (existingPlace) {
+								console.log(`Tempat "${nama}" sudah ada di database, diskip.`);
+								// const backButtons = await page.$$("svg.NMm5M");
+								// if (backButtons[1]) {
+								// 	await this.repeatClickUntilSuccess(page, backButtons[1]);
+								// }
+								await page.click(`svg.NMm5M`);
+								await page.waitForSelector(`div[jstcache="4"]`, { hidden: true });
+								continue;
 							}
-						});
-						await page.waitForNetworkIdle({ concurrency: 7 });
-
-						await page.waitForSelector(`div[jstcache="4"] h1`, { hidden: true });
-						await page.waitForSelector(`div[data-review-id][jslog]`, { visible: true });
-
-						const rating = await page.$eval(`div.fontDisplayLarge`, (el) => el.textContent?.trim());
-
-						const ulasans: any[] = [];
-
-						for (let i = 1; i <= 2; i++) {
-							for (const reviewHandle of await page.$$(`div[data-review-id][jslog]`)) {
-								await reviewHandle.evaluate((el) => el.scrollIntoView({ behavior: "instant", block: "start" }));
-
-								const expandBtn = await reviewHandle.$(`button[aria-expanded="false"]`);
-								if (expandBtn) {
-									// Repeat click untuk expand button
-									await this.repeatClickUntilSuccess(page, expandBtn);
-								}
-
-								// await new Promise((r) => setTimeout(r, 1000));
-
-								const data = await reviewHandle.evaluate((div) => {
-									const nama = div.querySelector(".d4r55")?.textContent?.trim() || null;
-									const ulasan = div.querySelector(".MyEned span")?.textContent?.trim() || null;
-
-									const ratingEl = div.querySelector(".kvMYJc");
-									const rating = ratingEl?.getAttribute("aria-label")?.match(/\d+/)?.[0] || null;
-
-									const fotoEls = div.querySelectorAll(".Tya61d");
-									const foto = Array.from(fotoEls)
-										.map((btn) => {
-											const style = btn.getAttribute("style") || "";
-											const match = style.match(/url\(["']?(.*?)["']?\)/);
-											return match ? match[1] : null;
-										})
-										.filter(Boolean);
-
-									return { nama, ulasan, rating, foto };
-								});
-
-								ulasans.push(data);
-							}
-							await page.waitForNetworkIdle({ concurrency: 7 });
 						}
 
-						console.log({ nama, alamat, gambar, rating, ulasans, total_ulasan });
+						const alamat = await page.$eval(`div[jstcache="4"] div.Io6YTe`, (el) => el.textContent?.trim());
+						const gambar = await page.$eval(`div[jstcache="4"] img`, (el) => el.getAttribute("src"));
+
+						// Tambahkan pengecekan untuk total_ulasan
+						let total_ulasan = "";
+						const totalUlasanEl = await page.$(`div[jstcache="4"] div.TIHn2 .F7nice span span span[aria-label]`);
+						if (totalUlasanEl) {
+							total_ulasan = await page.evaluate(el => el.textContent?.match(/\d[\d.,]*/)?.[0] || "", totalUlasanEl);
+						} else {
+							total_ulasan = "0";
+						}
+
+						let rating;
+						let ulasans: any[] = [];
+
+						// PENAMBAHAN: Blok try...catch untuk proses klik tab ulasan
+						try {
+							await page.evaluate(() => {
+								const buttons = Array.from(document.querySelectorAll('div[role="tablist"] > button'));
+								const target = buttons.find((btn) => btn.textContent?.trim().toLowerCase() === "ulasan");
+								if (target) {
+									let attempts = 0;
+									const maxAttempts = 10;
+									const clickInterval = setInterval(() => {
+										attempts++;
+										try {
+											(target as HTMLElement).click();
+											console.log(`Tab ulasan clicked on attempt ${attempts}`);
+											clearInterval(clickInterval);
+										} catch (error) {
+											if (attempts >= maxAttempts) {
+												console.log(`Failed to click tab ulasan after ${maxAttempts} attempts`);
+												clearInterval(clickInterval);
+												// Melempar error agar bisa ditangkap oleh blok catch di luar
+												throw new Error("Gagal mengklik tab ulasan.");
+											}
+										}
+									}, 1000);
+								} else {
+									throw new Error("Tombol tab ulasan tidak ditemukan.");
+								}
+							});
+							await page.waitForNetworkIdle({ concurrency: 8 });
+
+							await page.waitForSelector(`div[jstcache="4"] h1`, { hidden: true });
+							await page.waitForSelector(`div[data-review-id][jslog]`, { visible: true });
+
+							rating = await page.$eval(`div.fontDisplayLarge`, (el) => el.textContent?.trim());
+
+							for (let i = 1; i <= 2; i++) {
+								for (const reviewHandle of await page.$$(`div[data-review-id][jslog]`)) {
+									await reviewHandle.evaluate((el) => el.scrollIntoView({ behavior: "instant", block: "start" }));
+									const expandBtn = await reviewHandle.$(`button[aria-expanded="false"]`);
+									if (expandBtn) {
+										await this.repeatClickUntilSuccess(page, expandBtn);
+									}
+									const data = await reviewHandle.evaluate((div) => {
+										const nama = div.querySelector(".d4r55")?.textContent?.trim() || null;
+										const ulasan = div.querySelector(".MyEned span")?.textContent?.trim() || null;
+										const ratingEl = div.querySelector(".kvMYJc");
+										const rating = ratingEl?.getAttribute("aria-label")?.match(/\d+/)?.[0] || null;
+										const fotoEls = div.querySelectorAll(".Tya61d");
+										const foto = Array.from(fotoEls)
+											.map((btn) => {
+												const style = btn.getAttribute("style") || "";
+												const match = style.match(/url\(["']?(.*?)["']?\)/);
+												return match ? match[1] : null;
+											})
+											.filter(Boolean);
+										return { nama, ulasan, rating, foto };
+									});
+									ulasans.push(data);
+								}
+								await page.waitForNetworkIdle({ concurrency: 8 });
+							}
+						} catch (error) {
+							console.error(`Gagal memproses ulasan untuk "${nama}". Melanjutkan ke data berikutnya. Error:`, error);
+							// Klik tombol kembali untuk kembali ke daftar
+							// const backButtons = await page.$$("svg.NMm5M");
+							// if (backButtons[1]) {
+							// 	await this.repeatClickUntilSuccess(page, backButtons[1]);
+							// }
+							await page.click(`svg.NMm5M`);
+							await page.waitForSelector(`div[jstcache="4"]`, { hidden: true });
+							continue; // Lanjutkan ke item berikutnya
+						}
+
+						let harga: string = "";
+						let deskripsi: string = "";
+
+						try {
+							const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+							const config = { responseMimeType: "text/plain" };
+							const model = "gemini-2.5-flash-preview-05-20";
+							const hargaContents = [
+								{
+									role: "user",
+									parts: [
+										{
+											text: `Berdasarkan nama tempat "${nama}" dan review berikut: ${ulasans
+												.map((u) => u.ulasan)
+												.join(" ")}. Jika ini adalah tempat wisata yang memerlukan tiket masuk, berikan estimasi harga tiket untuk 1 orang dalam format string (contoh: "Rp 15.000"). Jika gratis, kembalikan string "Gratis". Jika tidak ada informasi harga yang jelas di review, kembalikan string kosong "". Hanya kembalikan string hasilnya, tanpa penjelasan tambahan.`,
+										},
+									],
+								},
+							];
+							const hargaResponse = await ai.models.generateContentStream({ model, config, contents: hargaContents });
+							let hargaText = "";
+							for await (const chunk of hargaResponse) {
+								hargaText += chunk.text || "";
+							}
+							harga = hargaText.trim().replace(/^"|"$/g, "");
+
+							const deskripsiContents = [{ role: "user", parts: [{ text: `Berdasarkan nama tempat "${nama}", alamat "${alamat}", dan review berikut: ${ulasans.map((u) => u.ulasan).join(" ")}. Buatkan deskripsi singkat dan menarik tentang tempat ini dalam 2-3 kalimat yang menggambarkan keunikan dan daya tariknya.` }] }];
+							const deskripsiResponse = await ai.models.generateContentStream({ model, config, contents: deskripsiContents });
+							for await (const chunk of deskripsiResponse) {
+								deskripsi += chunk.text || "";
+							}
+							deskripsi = deskripsi.trim();
+						} catch (error) {
+							console.error("Error generating with Gemini:", error);
+						}
+
+						console.log({ nama, alamat, gambar, rating, ulasans, total_ulasan, harga, deskripsi });
 						console.log("");
 
-						const match = page.url().match(/@([-.\d]+),([-.\d]+)/);
+						const match = page.url().match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
 
 						if (saveToDB) {
 							await prisma.maps.upsert({
@@ -210,13 +274,9 @@ export default class GMaps {
 									latitude: parseFloat(match?.[1] || "0"),
 									longitude: parseFloat(match?.[2] || "0"),
 									total_ulasan: parseInt(total_ulasan.replace(/[.,]/g, ""), 10),
-									reviews: {
-										create: ulasans.map((u) => ({
-											nama: u.nama || "",
-											komentar: u.ulasan || "",
-											rating: u.rating || "",
-										})),
-									},
+									harga: harga || "",
+									deskripsi: deskripsi || "",
+									reviews: { create: ulasans.map((u) => ({ nama: u.nama || "", komentar: u.ulasan || "", rating: u.rating || "" })) },
 								},
 								create: {
 									nama: nama || "",
@@ -226,18 +286,13 @@ export default class GMaps {
 									latitude: parseFloat(match?.[1] || "0"),
 									longitude: parseFloat(match?.[2] || "0"),
 									total_ulasan: parseInt(total_ulasan.replace(/[.,]/g, ""), 10),
-									reviews: {
-										create: ulasans.map((u) => ({
-											nama: u.nama || "",
-											komentar: u.ulasan || "",
-											rating: u.rating || "",
-										})),
-									},
+									harga: harga || "",
+									deskripsi: deskripsi || "",
+									reviews: { create: ulasans.map((u) => ({ nama: u.nama || "", komentar: u.ulasan || "", rating: u.rating || "" })) },
 								},
 							});
 						}
 
-						// Repeat click untuk back button
 						const backButtons = await page.$$("svg.NMm5M");
 						if (backButtons[1]) {
 							await this.repeatClickUntilSuccess(page, backButtons[1]);
@@ -246,88 +301,129 @@ export default class GMaps {
 					}
 				}
 			} else {
-				// Handle single result case - extract data similar to the feed case
-				await page.waitForSelector(`div[jstcache="3"]`, { visible: true });
-
+				// Single Result Case
 				await page.waitForSelector(`div[jstcache="3"] h1`, { visible: true });
 				const nama = await page.$eval(`div[jstcache="3"] h1`, (el) => el.textContent?.trim());
-				await page.waitForSelector(`div[jstcache="3"] div.Io6YTe`, { visible: true });
-				const alamat = await page.$eval(`div[jstcache="3"] div.Io6YTe`, (el) => el.textContent?.trim());
-				await page.waitForSelector(`div[jstcache="3"] img`, { visible: true });
-				const gambar = await page.$eval(`div[jstcache="3"] img`, (el) => el.getAttribute("src"));
-				await page.waitForSelector(`div[jstcache="3"] div.TIHn2 .F7nice span span span[aria-label]`, { visible: true });
-				const total_ulasan = await page.$eval(`div[jstcache="3"] div.TIHn2 .F7nice span span span[aria-label]`, (el) => el.textContent?.match(/\d[\d.,]*/)?.[0] || "");
 
-				// Repeat click untuk tab ulasan di single result
-				await page.evaluate(() => {
-					const buttons = Array.from(document.querySelectorAll('div[role="tablist"] > button'));
-					const target = buttons.find((btn) => btn.textContent?.trim().toLowerCase() === "ulasan");
-					if (target) {
-						// Repeat click logic langsung di evaluate
-						let attempts = 0;
-						const maxAttempts = 10;
-						const clickInterval = setInterval(() => {
-							attempts++;
-							try {
-								(target as HTMLElement).click();
-								console.log(`Tab ulasan clicked on attempt ${attempts}`);
-								clearInterval(clickInterval);
-							} catch (error) {
-								if (attempts >= maxAttempts) {
-									console.log(`Failed to click tab ulasan after ${maxAttempts} attempts`);
-									clearInterval(clickInterval);
-								}
-							}
-						}, 1000);
+				if (saveToDB && nama) {
+					const existingPlace = await prisma.maps.findUnique({ where: { nama: nama } });
+					if (existingPlace) {
+						console.log(`Tempat "${nama}" sudah ada di database, proses dihentikan.`);
+						return;
 					}
-				});
-				await page.waitForNetworkIdle({ concurrency: 7 });
-
-				await page.waitForSelector(`div[jstcache="3"] h1`, { hidden: true });
-				await page.waitForSelector(`div[data-review-id][jslog]`, { visible: true });
-
-				const rating = await page.$eval(`div.fontDisplayLarge`, (el) => el.textContent?.trim());
-
-				const ulasans: any[] = [];
-
-				for (let i = 1; i <= 2; i++) {
-					for (const reviewHandle of await page.$$(`div[data-review-id][jslog]`)) {
-						await reviewHandle.evaluate((el) => el.scrollIntoView({ behavior: "instant", block: "start" }));
-
-						const expandBtn = await reviewHandle.$(`button[aria-expanded="false"]`);
-						if (expandBtn) {
-							// Repeat click untuk expand button di single result
-							await this.repeatClickUntilSuccess(page, expandBtn);
-						}
-
-						const data = await reviewHandle.evaluate((div) => {
-							const nama = div.querySelector(".d4r55")?.textContent?.trim() || null;
-							const ulasan = div.querySelector(".MyEned span")?.textContent?.trim() || null;
-
-							const ratingEl = div.querySelector(".kvMYJc");
-							const rating = ratingEl?.getAttribute("aria-label")?.match(/\d+/)?.[0] || null;
-
-							const fotoEls = div.querySelectorAll(".Tya61d");
-							const foto = Array.from(fotoEls)
-								.map((btn) => {
-									const style = btn.getAttribute("style") || "";
-									const match = style.match(/url\(["']?(.*?)["']?\)/);
-									return match ? match[1] : null;
-								})
-								.filter(Boolean);
-
-							return { nama, ulasan, rating, foto };
-						});
-
-						ulasans.push(data);
-					}
-					await page.waitForNetworkIdle({ concurrency: 7 });
 				}
 
-				console.log({ nama, alamat, gambar, rating, ulasans, total_ulasan: parseInt(total_ulasan.replace(/[.,]/g, ""), 10) });
+				const alamat = await page.$eval(`div[jstcache="3"] div.Io6YTe`, (el) => el.textContent?.trim());
+				const gambar = await page.$eval(`div[jstcache="3"] img`, (el) => el.getAttribute("src"));
+				const total_ulasan = await page.$eval(`div[jstcache="3"] div.TIHn2 .F7nice span span span[aria-label]`, (el) => el.textContent?.match(/\d[\d.,]*/)?.[0] || "");
+
+				let rating;
+				let ulasans: any[] = [];
+
+				// PENAMBAHAN: Blok try...catch untuk proses klik tab ulasan
+				try {
+					await page.evaluate(() => {
+						const buttons = Array.from(document.querySelectorAll('div[role="tablist"] > button'));
+						const target = buttons.find((btn) => btn.textContent?.trim().toLowerCase() === "ulasan");
+						if (target) {
+							let attempts = 0;
+							const maxAttempts = 10;
+							const clickInterval = setInterval(() => {
+								attempts++;
+								try {
+									(target as HTMLElement).click();
+									console.log(`Tab ulasan clicked on attempt ${attempts}`);
+									clearInterval(clickInterval);
+								} catch (error) {
+									if (attempts >= maxAttempts) {
+										console.log(`Failed to click tab ulasan after ${maxAttempts} attempts`);
+										clearInterval(clickInterval);
+										throw new Error("Gagal mengklik tab ulasan.");
+									}
+								}
+							}, 1000);
+						} else {
+							throw new Error("Tombol tab ulasan tidak ditemukan.");
+						}
+					});
+					await page.waitForNetworkIdle({ concurrency: 8 });
+
+					await page.waitForSelector(`div[jstcache="3"] h1`, { hidden: true });
+					await page.waitForSelector(`div[data-review-id][jslog]`, { visible: true });
+
+					rating = await page.$eval(`div.fontDisplayLarge`, (el) => el.textContent?.trim());
+
+					for (let i = 1; i <= 2; i++) {
+						for (const reviewHandle of await page.$$(`div[data-review-id][jslog]`)) {
+							await reviewHandle.evaluate((el) => el.scrollIntoView({ behavior: "instant", block: "start" }));
+							const expandBtn = await reviewHandle.$(`button[aria-expanded="false"]`);
+							if (expandBtn) {
+								await this.repeatClickUntilSuccess(page, expandBtn);
+							}
+							const data = await reviewHandle.evaluate((div) => {
+								const nama = div.querySelector(".d4r55")?.textContent?.trim() || null;
+								const ulasan = div.querySelector(".MyEned span")?.textContent?.trim() || null;
+								const ratingEl = div.querySelector(".kvMYJc");
+								const rating = ratingEl?.getAttribute("aria-label")?.match(/\d+/)?.[0] || null;
+								const fotoEls = div.querySelectorAll(".Tya61d");
+								const foto = Array.from(fotoEls)
+									.map((btn) => {
+										const style = btn.getAttribute("style") || "";
+										const match = style.match(/url\(["']?(.*?)["']?\)/);
+										return match ? match[1] : null;
+									})
+									.filter(Boolean);
+								return { nama, ulasan, rating, foto };
+							});
+							ulasans.push(data);
+						}
+						await page.waitForNetworkIdle({ concurrency: 8 });
+					}
+				} catch (error) {
+					console.error(`Gagal memproses ulasan untuk "${nama}". Menghentikan proses untuk item ini. Error:`, error);
+					return; // Hentikan eksekusi untuk item tunggal yang gagal ini
+				}
+
+				let harga: string = "";
+				let deskripsi: string = "";
+
+				try {
+					const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+					const config = { responseMimeType: "text/plain" };
+					const model = "gemini-2.5-flash-preview-05-20";
+					const hargaContents = [
+						{
+							role: "user",
+							parts: [
+								{
+									text: `Berdasarkan nama tempat "${nama}" dan review berikut: ${ulasans
+										.map((u) => u.ulasan)
+										.join(" ")}. Jika ini adalah tempat wisata yang memerlukan tiket masuk, berikan estimasi harga tiket untuk 1 orang dalam format string (contoh: "Rp 15.000"). Jika gratis, kembalikan string "Gratis". Jika tidak ada informasi harga yang jelas di review, kembalikan string kosong "". Hanya kembalikan string hasilnya, tanpa penjelasan tambahan.`,
+								},
+							],
+						},
+					];
+					const hargaResponse = await ai.models.generateContentStream({ model, config, contents: hargaContents });
+					let hargaText = "";
+					for await (const chunk of hargaResponse) {
+						hargaText += chunk.text || "";
+					}
+					harga = hargaText.trim().replace(/^"|"$/g, "");
+
+					const deskripsiContents = [{ role: "user", parts: [{ text: `Berdasarkan nama tempat "${nama}", alamat "${alamat}", dan review berikut: ${ulasans.map((u) => u.ulasan).join(" ")}. Buatkan deskripsi singkat dan menarik tentang tempat ini dalam 2-3 kalimat yang menggambarkan keunikan dan daya tariknya.` }] }];
+					const deskripsiResponse = await ai.models.generateContentStream({ model, config, contents: deskripsiContents });
+					for await (const chunk of deskripsiResponse) {
+						deskripsi += chunk.text || "";
+					}
+					deskripsi = deskripsi.trim();
+				} catch (error) {
+					console.error("Error generating with Gemini:", error);
+				}
+
+				console.log({ nama, alamat, gambar, rating, ulasans, total_ulasan: parseInt(total_ulasan.replace(/[.,]/g, ""), 10), harga, deskripsi });
 				console.log("");
 
-				const match = page.url().match(/@([-.\d]+),([-.\d]+)/);
+				const match = page.url().match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
 
 				if (saveToDB) {
 					await prisma.maps.upsert({
@@ -339,13 +435,9 @@ export default class GMaps {
 							latitude: parseFloat(match?.[1] || "0"),
 							longitude: parseFloat(match?.[2] || "0"),
 							total_ulasan: parseInt(total_ulasan.replace(/[.,]/g, ""), 10),
-							reviews: {
-								create: ulasans.map((u) => ({
-									nama: u.nama || "",
-									komentar: u.ulasan || "",
-									rating: u.rating || "",
-								})),
-							},
+							harga: harga || "",
+							deskripsi: deskripsi || "",
+							reviews: { create: ulasans.map((u) => ({ nama: u.nama || "", komentar: u.ulasan || "", rating: u.rating || "" })) },
 						},
 						create: {
 							nama: nama || "",
@@ -355,13 +447,9 @@ export default class GMaps {
 							latitude: parseFloat(match?.[1] || "0"),
 							longitude: parseFloat(match?.[2] || "0"),
 							total_ulasan: parseInt(total_ulasan.replace(/[.,]/g, ""), 10),
-							reviews: {
-								create: ulasans.map((u) => ({
-									nama: u.nama || "",
-									komentar: u.ulasan || "",
-									rating: u.rating || "",
-								})),
-							},
+							harga: harga || "",
+							deskripsi: deskripsi || "",
+							reviews: { create: ulasans.map((u) => ({ nama: u.nama || "", komentar: u.ulasan || "", rating: u.rating || "" })) },
 						},
 					});
 				}
