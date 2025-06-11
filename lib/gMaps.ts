@@ -17,7 +17,7 @@ export default class GMaps {
 					? "/usr/bin/google-chrome"
 					: "C:/Program Files/Google/Chrome/Application/chrome.exe",
 			userDataDir: path.join(__dirname, "../", "userData"),
-			headless: process.env.NODE_ENV === "production",
+			headless: false,
 			defaultViewport: { height: 800, width: 1280 },
 			args: [
 				"--no-sandbox",
@@ -72,6 +72,7 @@ export default class GMaps {
 				}
 			});
 
+			page.setDefaultTimeout(120_000);
 			await page.goto("https://www.google.com/maps");
 			await page.type("input[name='q']", search);
 			await page.keyboard.press("Enter");
@@ -108,13 +109,13 @@ export default class GMaps {
 						if (!aTag) continue;
 
 						await aTag.evaluate((el) => el.scrollIntoView({ behavior: "instant", block: "start" }));
-						await page.waitForNetworkIdle();
+						await page.waitForNetworkIdle({ concurrency: 7 });
 
 						// Repeat click untuk aTag
 						const aTagClicked = await this.repeatClickUntilSuccess(page, aTag);
 						if (!aTagClicked) continue;
 
-						await page.waitForNetworkIdle();
+						await page.waitForNetworkIdle({ concurrency: 7 });
 						await page.waitForSelector(`div[jstcache="4"]`, { visible: true });
 
 						await page.waitForSelector(`div[jstcache="4"] h1`, { visible: true });
@@ -123,6 +124,8 @@ export default class GMaps {
 						const alamat = await page.$eval(`div[jstcache="4"] div.Io6YTe`, (el) => el.textContent?.trim());
 						await page.waitForSelector(`div[jstcache="4"] img`, { visible: true });
 						const gambar = await page.$eval(`div[jstcache="4"] img`, (el) => el.getAttribute("src"));
+						await page.waitForSelector(`div[jstcache="4"] div.TIHn2 .F7nice span span span[aria-label]`, { visible: true });
+						const total_ulasan = await page.$eval(`div[jstcache="4"] div.TIHn2 .F7nice span span span[aria-label]`, (el) => el.textContent?.match(/\d[\d.,]*/)?.[0] || "");
 
 						// Repeat click untuk tab ulasan
 						await page.evaluate(() => {
@@ -147,7 +150,7 @@ export default class GMaps {
 								}, 1000);
 							}
 						});
-						await page.waitForNetworkIdle();
+						await page.waitForNetworkIdle({ concurrency: 7 });
 
 						await page.waitForSelector(`div[jstcache="4"] h1`, { hidden: true });
 						await page.waitForSelector(`div[data-review-id][jslog]`, { visible: true });
@@ -189,10 +192,10 @@ export default class GMaps {
 
 								ulasans.push(data);
 							}
-							await page.waitForNetworkIdle();
+							await page.waitForNetworkIdle({ concurrency: 7 });
 						}
 
-						console.log({ nama, alamat, gambar, rating, ulasans });
+						console.log({ nama, alamat, gambar, rating, ulasans, total_ulasan });
 						console.log("");
 
 						const match = page.url().match(/@([-.\d]+),([-.\d]+)/);
@@ -206,6 +209,7 @@ export default class GMaps {
 									rating: rating || "",
 									latitude: parseFloat(match?.[1] || "0"),
 									longitude: parseFloat(match?.[2] || "0"),
+									total_ulasan: parseInt(total_ulasan.replace(/[.,]/g, ""), 10),
 									reviews: {
 										create: ulasans.map((u) => ({
 											nama: u.nama || "",
@@ -221,6 +225,7 @@ export default class GMaps {
 									rating: rating || "",
 									latitude: parseFloat(match?.[1] || "0"),
 									longitude: parseFloat(match?.[2] || "0"),
+									total_ulasan: parseInt(total_ulasan.replace(/[.,]/g, ""), 10),
 									reviews: {
 										create: ulasans.map((u) => ({
 											nama: u.nama || "",
@@ -250,6 +255,8 @@ export default class GMaps {
 				const alamat = await page.$eval(`div[jstcache="3"] div.Io6YTe`, (el) => el.textContent?.trim());
 				await page.waitForSelector(`div[jstcache="3"] img`, { visible: true });
 				const gambar = await page.$eval(`div[jstcache="3"] img`, (el) => el.getAttribute("src"));
+				await page.waitForSelector(`div[jstcache="3"] div.TIHn2 .F7nice span span span[aria-label]`, { visible: true });
+				const total_ulasan = await page.$eval(`div[jstcache="3"] div.TIHn2 .F7nice span span span[aria-label]`, (el) => el.textContent?.match(/\d[\d.,]*/)?.[0] || "");
 
 				// Repeat click untuk tab ulasan di single result
 				await page.evaluate(() => {
@@ -274,7 +281,7 @@ export default class GMaps {
 						}, 1000);
 					}
 				});
-				await page.waitForNetworkIdle();
+				await page.waitForNetworkIdle({ concurrency: 7 });
 
 				await page.waitForSelector(`div[jstcache="3"] h1`, { hidden: true });
 				await page.waitForSelector(`div[data-review-id][jslog]`, { visible: true });
@@ -314,10 +321,10 @@ export default class GMaps {
 
 						ulasans.push(data);
 					}
-					await page.waitForNetworkIdle();
+					await page.waitForNetworkIdle({ concurrency: 7 });
 				}
 
-				console.log({ nama, alamat, gambar, rating, ulasans });
+				console.log({ nama, alamat, gambar, rating, ulasans, total_ulasan: parseInt(total_ulasan.replace(/[.,]/g, ""), 10) });
 				console.log("");
 
 				const match = page.url().match(/@([-.\d]+),([-.\d]+)/);
@@ -331,6 +338,7 @@ export default class GMaps {
 							rating: rating || "",
 							latitude: parseFloat(match?.[1] || "0"),
 							longitude: parseFloat(match?.[2] || "0"),
+							total_ulasan: parseInt(total_ulasan.replace(/[.,]/g, ""), 10),
 							reviews: {
 								create: ulasans.map((u) => ({
 									nama: u.nama || "",
@@ -346,6 +354,7 @@ export default class GMaps {
 							rating: rating || "",
 							latitude: parseFloat(match?.[1] || "0"),
 							longitude: parseFloat(match?.[2] || "0"),
+							total_ulasan: parseInt(total_ulasan.replace(/[.,]/g, ""), 10),
 							reviews: {
 								create: ulasans.map((u) => ({
 									nama: u.nama || "",
