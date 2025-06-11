@@ -3,13 +3,13 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/LandingPageNavbar";
 import Hero from "@/components/Hero";
 import TrendingDestination from "@/components/TrendingDestination";
 import AboutUs from "@/components/AboutUs";
 import UserReview from "@/components/UserReview";
 import Footer from "@/components/Footer";
-
+import Feature from "@/components/Feature";
 import PolaroidPhotoMbuluk from "@/assets/images/PantaiMbuluk.jpg";
 
 export default function LandingPage() {
@@ -54,6 +54,7 @@ export default function LandingPage() {
 				<TrendingDestination />
 				<AboutUs />
 				<UserReview />
+				<Feature />
 				<Footer />
 			</main>
 		</>

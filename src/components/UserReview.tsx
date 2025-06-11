@@ -74,10 +74,13 @@ const UserReview = () => {
           User Reviews
         </span>
         <h2
-          className={`text-3xl sm:text-3xl md:text-4xl font-bold mt-2 text-gray-800 ${inter.className}`}
+          className={`text-3xl font-bold mt-2 text-gray-800 ${inter.className}`}
         >
           What Our Users Say
         </h2>
+        <p className={`text-gray-600 mt-4 max-w-2xl mx-auto ${inter.className}`}>
+          Discover Indonesia's top-rated destinations from tranquil lakes to vibrant beaches all handpicked for you by our smart travel assistant.
+        </p>
       </motion.div>
       <div className="rounded-md flex flex-col antialiased bg-white dark:bg-black dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden">
         <InfiniteMovingCards
