@@ -187,6 +187,10 @@ export default class GMaps {
 
 							for (let i = 1; i <= 2; i++) {
 								for (const reviewHandle of await page.$$(`div[data-review-id][jslog]`)) {
+									const isProcessed = await reviewHandle.evaluate((el) => el.dataset._done === "1");
+									if (isProcessed) continue;
+									await reviewHandle.evaluate((el) => (el.dataset._done = "1"));
+
 									await reviewHandle.evaluate((el) => el.scrollIntoView({ behavior: "instant", block: "start" }));
 									const expandBtn = await reviewHandle.$(`button[aria-expanded="false"]`);
 									if (expandBtn) {
@@ -371,6 +375,10 @@ export default class GMaps {
 
 					for (let i = 1; i <= 2; i++) {
 						for (const reviewHandle of await page.$$(`div[data-review-id][jslog]`)) {
+							const isProcessed = await reviewHandle.evaluate((el) => el.dataset._done === "1");
+							if (isProcessed) continue;
+							await reviewHandle.evaluate((el) => (el.dataset._done = "1"));
+
 							await reviewHandle.evaluate((el) => el.scrollIntoView({ behavior: "instant", block: "start" }));
 							const expandBtn = await reviewHandle.$(`button[aria-expanded="false"]`);
 							if (expandBtn) {
