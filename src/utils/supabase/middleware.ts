@@ -46,6 +46,7 @@ export async function updateSession(request: NextRequest) {
     !(request.nextUrl.pathname == "/") &&
     !request.nextUrl.pathname.startsWith("/recomendation") &&
     !(request.nextUrl.pathname == "/chat")
+    && !request.nextUrl.pathname.startsWith("/pricing")
   ) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone();

@@ -65,14 +65,14 @@ const Footer = () => {
       className="bg-gray-900 text-white pt-12 overflow-hidden"
     >
       <motion.div
-        className="max-w-7xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12"
+        className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-start gap-8 lg:gap-12"
         variants={containerVariants}
         initial="hidden"
         animate={isVisible ? "visible" : "hidden"}
       >
         {/* Brand Section */}
         <motion.div
-          className={`col-span-1 sm:col-span-2 lg:col-span-1 ${inter.className}`}
+          className={`w-full sm:w-auto ${inter.className}`}
           variants={itemVariants}
         >
           <motion.div
@@ -105,72 +105,8 @@ const Footer = () => {
           </div>
         </motion.div>
 
-        {/* Quick Links */}
-        <motion.div variants={itemVariants} className="col-span-1">
-          <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
-          <ul className="space-y-2">
-            {["Home", "About Us", "Blog", "Contact"].map((link) => (
-              <motion.li
-                key={link}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <a
-                  href="#"
-                  className="text-gray-300 hover:text-rose-500 transition-colors duration-300"
-                >
-                  {link}
-                </a>
-              </motion.li>
-            ))}
-          </ul>
-        </motion.div>
-
-        {/* Support Section */}
-        <motion.div variants={itemVariants} className="col-span-1">
-          <h4 className="text-lg font-semibold mb-4">Support</h4>
-          <ul className="space-y-2">
-            {["Contact", "Privacy Policy", "Terms of Service", "FAQ"].map(
-              (link) => (
-                <motion.li
-                  key={link}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  <a
-                    href="#"
-                    className="text-gray-300 hover:text-rose-500 transition-colors duration-300"
-                  >
-                    {link}
-                  </a>
-                </motion.li>
-              )
-            )}
-          </ul>
-        </motion.div>
-
-        {/* Services Section */}
-        <motion.div variants={itemVariants} className="col-span-1">
-          <h4 className="text-lg font-semibold mb-4">Other Services</h4>
-          <ul className="space-y-2">
-            {["Tour List", "Tour Guide", "Travel Insurance", "Travel Blog"].map(
-              (link) => (
-                <motion.li
-                  key={link}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  <a
-                    href="#"
-                    className="text-gray-300 hover:text-rose-500 transition-colors duration-300"
-                  >
-                    {link}
-                  </a>
-                </motion.li>
-              )
-            )}
-          </ul>
-        </motion.div>
-
         {/* Contact Info */}
-        <motion.div variants={itemVariants} className="col-span-1">
+        <motion.div variants={itemVariants} className="w-full sm:w-auto">
           <h4 className="text-lg font-semibold mb-4">Talk To Us</h4>
           <ul className="space-y-3">
             {[

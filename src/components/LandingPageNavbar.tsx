@@ -22,9 +22,8 @@ const Navbar: React.FC = () => {
 
   const menuItems = [
     { label: "Home", href: "/" },
-    { label: "Docs", href: "/document"},
-    { label: "Priceing", href: "/priceing" },
-    { label: "Recomendation by ai", href: "/recomendation" },
+    { label: "Pricing", href: "/pricing" },
+    { label: "Recomendation by Ai", href: "/recomendation" },
   ];
 
   const navVariants = {
