@@ -128,27 +128,27 @@ const RecomendationNavbar = () => {
     {
       href: "/activities/hiking",
       label: "Hiking",
-      desc: "Nikmati jalur pendakian terbaik dengan pemandangan alam yang memukau.",
+      desc: "Enjoy the best hiking trails with breathtaking natural views.",
     },
     {
       href: "/activities/camping",
       label: "Camping",
-      desc: "Temukan lokasi berkemah terbaik di pegunungan dan tepi danau.",
+      desc: "Discover the finest camping spots in the mountains and by the lakeside.",
     },
     {
       href: "/activities/sightseeing",
       label: "Sightseeing",
-      desc: "Jelajahi destinasi ikonik dan panorama kota yang menakjubkan.",
+      desc: "Explore iconic landmarks and stunning cityscapes.",
     },
     {
       href: "/activities/culinary",
       label: "Culinary",
-      desc: "Cicipi hidangan lokal yang autentik dan kuliner khas daerah.",
+      desc: "Taste authentic local dishes and regional culinary delights.",
     },
     {
       href: "/activities/nature-walks",
       label: "Nature Walks",
-      desc: "Rileks sejenak sambil berjalan di tengah pepohonan dan udara segar.",
+      desc: "Unwind with a peaceful walk surrounded by trees and fresh air.",
     },
   ];
 
@@ -179,10 +179,7 @@ const RecomendationNavbar = () => {
                 animate={{ x: 0, opacity: 1 }}
                 className="flex-shrink-0"
               >
-                <Link
-                  href="/"
-                  className="text-xl font-bold text-slate-800"
-                >
+                <Link href="/" className="text-xl font-bold text-slate-800">
                   AitherWay
                 </Link>
               </motion.div>
@@ -214,62 +211,27 @@ const RecomendationNavbar = () => {
                   >
                     Home
                   </Link>
-                  {["Destinations", "Activities"].map((item, i) => (
-                    <motion.li
-                      key={item}
-                      custom={i}
-                      variants={menuItemVariants}
-                      initial="hidden"
-                      animate="visible"
-                      className="list-none"
-                    >
-                      <NavigationMenuItem>
-                        {item === "Activities" ? (
-                          <div>
-                            <NavigationMenuTrigger className="h-10 px-4 py-2 rounded-md data-[state=open]:bg-pink-50 hover:bg-pink-50 hover:text-pink-600 transition-colors text-sm">
-                              {item}
-                            </NavigationMenuTrigger>
-                            <NavigationMenuContent>
-                              <ul className="w-[280px] bg-white p-4 rounded-lg grid gap-2">
-                                {activitiesList.map((activity) => (
-                                  <motion.li
-                                    key={activity.href}
-                                    whileHover={{ x: 5 }}
-                                    transition={{
-                                      type: "spring",
-                                      stiffness: 200,
-                                    }}
-                                    className="list-none"
-                                  >
-                                    <Link
-                                      href={activity.href}
-                                      className="flex items-start gap-3 p-3 rounded-md hover:bg-pink-50 transition-colors group text-sm"
-                                    >
-                                      <div className="flex-1">
-                                        <div className="font-medium text-slate-700 group-hover:text-pink-600 transition-colors">
-                                          {activity.label}
-                                        </div>
-                                        <div className="text-sm text-slate-500 line-clamp-2">
-                                          {activity.desc}
-                                        </div>
-                                      </div>
-                                    </Link>
-                                  </motion.li>
-                                ))}
-                              </ul>
-                            </NavigationMenuContent>
-                          </div>
-                        ) : (
+                  {["Docs", "Priceing", "Recomendation by Ai"].map(
+                    (item, i) => (
+                      <motion.div
+                        key={item}
+                        custom={i}
+                        variants={menuItemVariants}
+                        initial="hidden"
+                        animate="visible"
+                        className="list-none"
+                      >
+                        <NavigationMenuItem>
                           <Link
                             href={`/${item.toLowerCase()}`}
                             className="flex items-center h-10 px-4 py-2 rounded-md hover:bg-pink-50 hover:text-pink-600 transition-colors text-sm"
                           >
                             {item}
                           </Link>
-                        )}
-                      </NavigationMenuItem>
-                    </motion.li>
-                  ))}
+                        </NavigationMenuItem>
+                      </motion.div>
+                    )
+                  )}
                 </ul>
               </NavigationMenu>
 
@@ -333,75 +295,33 @@ const RecomendationNavbar = () => {
                         Home
                       </Link>
                       <Link
+                        href="/docs"
+                        onClick={closeMobileMenu}
+                        className="flex items-center px-4 py-3 rounded-lg hover:bg-pink-50 hover:text-pink-600 transition-colors text-slate-700 font-medium"
+                      >
+                        Docs
+                      </Link>
+                      <Link
+                        href="/priceing"
+                        onClick={closeMobileMenu}
+                        className="flex items-center px-4 py-3 rounded-lg hover:bg-pink-50 hover:text-pink-600 transition-colors text-slate-700 font-medium"
+                      >
+                        Priceing
+                      </Link>
+                      <Link
                         href="/destinations"
                         onClick={closeMobileMenu}
                         className="flex items-center px-4 py-3 rounded-lg hover:bg-pink-50 hover:text-pink-600 transition-colors text-slate-700 font-medium"
                       >
-                        Destinations
+                        Priceing
                       </Link>
-                      
-                      {/* Activities Accordion */}
-                      <div className="space-y-2">
-                        <button
-                          onClick={() => setIsActivitiesOpen(!isActivitiesOpen)}
-                          className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-pink-50 hover:text-pink-600 transition-colors text-slate-700 font-medium"
-                        >
-                          Activities
-                          <motion.div
-                            animate={{
-                              rotate: isActivitiesOpen ? 180 : 0,
-                            }}
-                            transition={{ duration: 0.3 }}
-                          >
-                            <svg
-                              width="16"
-                              height="16"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <polyline points="6,9 12,15 18,9"></polyline>
-                            </svg>
-                          </motion.div>
-                        </button>
-                        
-                        <AnimatePresence>
-                          {isActivitiesOpen && (
-                            <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: "auto", opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: 0.3 }}
-                              className="overflow-hidden ml-4 space-y-1"
-                            >
-                              {activitiesList.map((activity, index) => (
-                                <motion.div
-                                  key={activity.href}
-                                  initial={{ x: -20, opacity: 0 }}
-                                  animate={{ x: 0, opacity: 1 }}
-                                  transition={{ delay: index * 0.05 }}
-                                >
-                                  <Link
-                                    href={activity.href}
-                                    onClick={closeMobileMenu}
-                                    className="flex flex-col px-4 py-3 rounded-lg hover:bg-pink-50 transition-colors group"
-                                  >
-                                    <span className="font-medium text-slate-700 group-hover:text-pink-600 transition-colors text-sm">
-                                      {activity.label}
-                                    </span>
-                                    <span className="text-xs text-slate-500 mt-1 line-clamp-2">
-                                      {activity.desc}
-                                    </span>
-                                  </Link>
-                                </motion.div>
-                              ))}
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
+                      <Link
+                        href="/recomendation"
+                        onClick={closeMobileMenu}
+                        className="flex items-center px-4 py-3 rounded-lg hover:bg-pink-50 hover:text-pink-600 transition-colors text-slate-700 font-medium"
+                      >
+                        Recomendation by Ai
+                      </Link>
                     </motion.div>
                   </div>
                 </motion.div>

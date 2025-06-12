@@ -6,13 +6,6 @@ import { Inter } from "next/font/google";
 import { useState } from "react";
 import Link from "next/link";
 
-interface NavbarProps {
-  logoText: string;
-  menuItems: {
-    label: string;
-    href: string;
-  }[];
-}
 
 const inter = Inter({
   weight: ["400", "500", "600", "700"],
@@ -30,7 +23,8 @@ const Navbar: React.FC = () => {
   const menuItems = [
     { label: "Home", href: "/" },
     { label: "Docs", href: "/document"},
-    { label: "Ask Ai", href: "/askAi" },
+    { label: "Priceing", href: "/priceing" },
+    { label: "Recomendation by ai", href: "/recomendation" },
   ];
 
   const navVariants = {
