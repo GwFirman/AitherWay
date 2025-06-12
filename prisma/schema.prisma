@@ -24,16 +24,18 @@ model Users {
 }
 
 model Maps {
-    id        String   @id @default(uuid())
-    nama      String   @unique
-    rating    String
-    deskripsi String
-    alamat    String
-    gambar    String
-    longitude Float
-    latitude  Float
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    id           String   @id @default(uuid())
+    nama         String   @unique
+    rating       String
+    deskripsi    String   @default("")
+    alamat       String
+    gambar       String
+    longitude    Float
+    latitude     Float
+    harga        String   @default("")
+    total_ulasan Int      @default(0)
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
 
     reviews Reviews[]
 }
