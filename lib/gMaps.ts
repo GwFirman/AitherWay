@@ -109,6 +109,17 @@ export default class GMaps {
 						if (!aTag) continue;
 
 						await aTag.evaluate((el) => el.scrollIntoView({ behavior: "instant", block: "start" }));
+						let nama1 = await item.$eval(`div > div .fontHeadlineSmall`, (el) => el.textContent?.trim());
+						if (saveToDB && nama1) {
+							const existingPlace = await prisma.maps.findUnique({
+								where: { nama: nama1 },
+							});
+							if (existingPlace) {
+								console.log(`Tempat "${nama1}" sudah ada di database, diskip.`);
+								continue;
+							}
+						}
+						await page.waitForNetworkIdle({ concurrency: 8 });
 						await page.waitForNetworkIdle({ concurrency: 8 });
 
 						const aTagClicked = await this.repeatClickUntilSuccess(page, aTag);
@@ -120,22 +131,6 @@ export default class GMaps {
 						await page.waitForSelector(`div[jstcache="4"] h1`, { visible: true });
 						const nama = await page.$eval(`div[jstcache="4"] h1`, (el) => el.textContent?.trim());
 
-						if (saveToDB && nama) {
-							const existingPlace = await prisma.maps.findUnique({
-								where: { nama: nama },
-							});
-							if (existingPlace) {
-								console.log(`Tempat "${nama}" sudah ada di database, diskip.`);
-								// const backButtons = await page.$$("svg.NMm5M");
-								// if (backButtons[1]) {
-								// 	await this.repeatClickUntilSuccess(page, backButtons[1]);
-								// }
-								await page.click(`svg.NMm5M`);
-								await page.waitForSelector(`div[jstcache="4"]`, { hidden: true });
-								continue;
-							}
-						}
-
 						const alamat = await page.$eval(`div[jstcache="4"] div.Io6YTe`, (el) => el.textContent?.trim());
 						const gambar = await page.$eval(`div[jstcache="4"] img`, (el) => el.getAttribute("src"));
 
@@ -143,7 +138,7 @@ export default class GMaps {
 						let total_ulasan = "";
 						const totalUlasanEl = await page.$(`div[jstcache="4"] div.TIHn2 .F7nice span span span[aria-label]`);
 						if (totalUlasanEl) {
-							total_ulasan = await page.evaluate(el => el.textContent?.match(/\d[\d.,]*/)?.[0] || "", totalUlasanEl);
+							total_ulasan = await page.evaluate((el) => el.textContent?.match(/\d[\d.,]*/)?.[0] || "", totalUlasanEl);
 						} else {
 							total_ulasan = "0";
 						}
@@ -187,6 +182,10 @@ export default class GMaps {
 
 							for (let i = 1; i <= 2; i++) {
 								for (const reviewHandle of await page.$$(`div[data-review-id][jslog]`)) {
+									const isProcessed = await reviewHandle.evaluate((el) => el.dataset._done === "1");
+									if (isProcessed) continue;
+									await reviewHandle.evaluate((el) => (el.dataset._done = "1"));
+
 									await reviewHandle.evaluate((el) => el.scrollIntoView({ behavior: "instant", block: "start" }));
 									const expandBtn = await reviewHandle.$(`button[aria-expanded="false"]`);
 									if (expandBtn) {
@@ -259,12 +258,14 @@ export default class GMaps {
 							console.error("Error generating with Gemini:", error);
 						}
 
-						console.log({ nama, alamat, gambar, rating, ulasans, total_ulasan, harga, deskripsi });
+						// Tambahan pada console.log untuk mencetak juga map_url
+						console.log({ nama, alamat, gambar, rating, ulasans, total_ulasan, harga, deskripsi, map_url: page.url() });
 						console.log("");
 
 						const match = page.url().match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
 
 						if (saveToDB) {
+							// Tambahan di bagian ini (di dalam if (saveToDB)) — untuk result banyak
 							await prisma.maps.upsert({
 								where: { nama: nama || "" },
 								update: {
@@ -273,10 +274,17 @@ export default class GMaps {
 									rating: rating || "",
 									latitude: parseFloat(match?.[1] || "0"),
 									longitude: parseFloat(match?.[2] || "0"),
+									map_url: page.url(), // ✅ Tambahan URL Google Maps
 									total_ulasan: parseInt(total_ulasan.replace(/[.,]/g, ""), 10),
 									harga: harga || "",
 									deskripsi: deskripsi || "",
-									reviews: { create: ulasans.map((u) => ({ nama: u.nama || "", komentar: u.ulasan || "", rating: u.rating || "" })) },
+									reviews: {
+										create: ulasans.map((u) => ({
+											nama: u.nama || "",
+											komentar: u.ulasan || "",
+											rating: u.rating || "",
+										})),
+									},
 								},
 								create: {
 									nama: nama || "",
@@ -285,10 +293,17 @@ export default class GMaps {
 									rating: rating || "",
 									latitude: parseFloat(match?.[1] || "0"),
 									longitude: parseFloat(match?.[2] || "0"),
+									map_url: page.url(), // ✅ Tambahan URL Google Maps
 									total_ulasan: parseInt(total_ulasan.replace(/[.,]/g, ""), 10),
 									harga: harga || "",
 									deskripsi: deskripsi || "",
-									reviews: { create: ulasans.map((u) => ({ nama: u.nama || "", komentar: u.ulasan || "", rating: u.rating || "" })) },
+									reviews: {
+										create: ulasans.map((u) => ({
+											nama: u.nama || "",
+											komentar: u.ulasan || "",
+											rating: u.rating || "",
+										})),
+									},
 								},
 							});
 						}
@@ -355,6 +370,10 @@ export default class GMaps {
 
 					for (let i = 1; i <= 2; i++) {
 						for (const reviewHandle of await page.$$(`div[data-review-id][jslog]`)) {
+							const isProcessed = await reviewHandle.evaluate((el) => el.dataset._done === "1");
+							if (isProcessed) continue;
+							await reviewHandle.evaluate((el) => (el.dataset._done = "1"));
+
 							await reviewHandle.evaluate((el) => el.scrollIntoView({ behavior: "instant", block: "start" }));
 							const expandBtn = await reviewHandle.$(`button[aria-expanded="false"]`);
 							if (expandBtn) {
@@ -420,12 +439,14 @@ export default class GMaps {
 					console.error("Error generating with Gemini:", error);
 				}
 
-				console.log({ nama, alamat, gambar, rating, ulasans, total_ulasan: parseInt(total_ulasan.replace(/[.,]/g, ""), 10), harga, deskripsi });
+				// Tambahan pada console.log untuk mencetak juga map_url
+				console.log({ nama, alamat, gambar, rating, ulasans, total_ulasan, harga, deskripsi, map_url: page.url() });
 				console.log("");
 
 				const match = page.url().match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
 
 				if (saveToDB) {
+					// Tambahan di bagian else (single result)
 					await prisma.maps.upsert({
 						where: { nama: nama || "" },
 						update: {
@@ -434,10 +455,17 @@ export default class GMaps {
 							rating: rating || "",
 							latitude: parseFloat(match?.[1] || "0"),
 							longitude: parseFloat(match?.[2] || "0"),
+							map_url: page.url(), // ✅ Tambahan di sini juga
 							total_ulasan: parseInt(total_ulasan.replace(/[.,]/g, ""), 10),
 							harga: harga || "",
 							deskripsi: deskripsi || "",
-							reviews: { create: ulasans.map((u) => ({ nama: u.nama || "", komentar: u.ulasan || "", rating: u.rating || "" })) },
+							reviews: {
+								create: ulasans.map((u) => ({
+									nama: u.nama || "",
+									komentar: u.ulasan || "",
+									rating: u.rating || "",
+								})),
+							},
 						},
 						create: {
 							nama: nama || "",
@@ -446,10 +474,17 @@ export default class GMaps {
 							rating: rating || "",
 							latitude: parseFloat(match?.[1] || "0"),
 							longitude: parseFloat(match?.[2] || "0"),
+							map_url: page.url(), // ✅
 							total_ulasan: parseInt(total_ulasan.replace(/[.,]/g, ""), 10),
 							harga: harga || "",
 							deskripsi: deskripsi || "",
-							reviews: { create: ulasans.map((u) => ({ nama: u.nama || "", komentar: u.ulasan || "", rating: u.rating || "" })) },
+							reviews: {
+								create: ulasans.map((u) => ({
+									nama: u.nama || "",
+									komentar: u.ulasan || "",
+									rating: u.rating || "",
+								})),
+							},
 						},
 					});
 				}

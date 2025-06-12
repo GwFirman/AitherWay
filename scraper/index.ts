@@ -4,7 +4,7 @@ async function main() {
 	const gMapsInstance = new GMaps();
 	// Jadikan true kalo mau save ke Database
 	const saveToDB = true;
-	await gMapsInstance.getDetails("pantai", saveToDB);
+	await gMapsInstance.getDetails("pantai jawa tengah", saveToDB);
 	console.log("sudah done");
 }
 main();

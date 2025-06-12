@@ -9,6 +9,7 @@ import BeachHero from "@/assets/images/BeachHero.jpg";
 import ElementArrow from "@/assets/images/element/Arrow.png";
 import PolaroidPhotoLombok from "@/assets/images/PantaiPinkLombok.jpg";
 import SearchBar from "@/components/ui/search-bar";
+import Image from "next/image";
 
 interface HeroProps {
 	backgroundImage?: string;
@@ -79,7 +80,7 @@ const Hero: React.FC<HeroProps> = ({ backgroundImage }) => {
 
 							{/* Floating Arrow */}
 							<motion.div className="absolute -left-48 -top-1 max-w-44" initial={{ opacity: 0, y: 40, rotate: -80, scale: 0.9 }} animate={{ opacity: 1, y: 0, rotate: -60, scale: 0.95 }} transition={{ delay: 0.8, duration: 0.7, ease: "easeOut" }}>
-								<img src={ElementArrow.src} className="w-full h-auto -rotate-0" alt="Arrow" />
+								<Image width={208} height={0} src={ElementArrow.src} className="w-full h-auto -rotate-0" alt="Arrow" />
 							</motion.div>
 						</div>
 					</motion.div>
@@ -92,7 +93,7 @@ const Hero: React.FC<HeroProps> = ({ backgroundImage }) => {
 				<motion.div className="absolute z-50 right-14 bottom-16 sm:bottom-24 md:bottom-32 justify-start hidden xl:flex" initial={{ opacity: 0, y: 60, rotate: -24, scale: 0.9 }} animate={{ opacity: 1, y: 0, rotate: -12, scale: 0.95 }} transition={{ delay: 1.4, duration: 0.7, ease: "easeOut" }}>
 					<div className="w-[200px] h-[280px]">
 						<div className="bg-white p-2 shadow-xl rounded-md w-full h-full flex items-center justify-center">
-							<img src={PolaroidPhotoLombok.src} alt="Polaroid" className="w-full h-full object-cover rounded" />
+							<Image width={300} height={0} src={PolaroidPhotoLombok.src} alt="Polaroid" className="w-full h-full object-cover rounded" />
 						</div>
 					</div>
 				</motion.div>

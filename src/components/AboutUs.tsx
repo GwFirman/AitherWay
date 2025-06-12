@@ -10,6 +10,7 @@ import { FaArrowRightLong } from "react-icons/fa6";
 
 import Person from "@/assets/images/Person.png";
 import Link from "next/link";
+import Image from "next/image";
 
 const inter = Inter({
 	weight: ["400", "500", "600", "700"],
@@ -64,15 +65,8 @@ const AboutUs = () => {
 		<section id="about-us" className="py-8 container mx-auto px-4">
 			<div className="max-w-7xl mx-auto">
 				<div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-
 					{/* Left */}
-					<motion.div
-						className="w-full lg:w-2/5 lg:flex justify-center items-center hidden"
-						initial="hidden"
-						animate={isVisible ? "visible" : "hidden"}
-						variants={variants}
-						transition={{ duration: 0.6 }}
-					>
+					<motion.div className="w-full lg:w-2/5 lg:flex justify-center items-center hidden" initial="hidden" animate={isVisible ? "visible" : "hidden"} variants={variants} transition={{ duration: 0.6 }}>
 						<div className="relative w-[280px] sm:w-[320px] md:w-[380px] lg:w-[420px] aspect-[3/4]">
 							<div
 								className="absolute z-10 w-[85%] h-[95%] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
@@ -80,7 +74,7 @@ const AboutUs = () => {
                 rounded-t-[3rem] shadow-lg shadow-emerald-300/30"
 							/>
 							<div className="absolute inset-0 z-20 flex items-center justify-center">
-								<img src={Person.src} alt="Person illustration" className="w-full h-full object-contain md:mt-1.5" />
+								<Image width={512} height={0} src={Person.src} alt="Person illustration" className="w-full h-full object-contain md:mt-1.5" />
 							</div>
 						</div>
 					</motion.div>
@@ -97,11 +91,7 @@ const AboutUs = () => {
 							AitherWay is an AI-powered travel assistant that helps you find your perfect destination—just by asking. Whether you're dreaming of a quiet escape, a scenic adventure, or a budget-friendly getaway, simply tell us what you're looking for. Our AI will respond with personalized location picks, mapped routes, and the top 5 recommendations tailored to your preferences. Say goodbye to endless
 							searching—AitherWay makes discovering Indonesia beautifully simple.
 						</motion.p>
-						<motion.ul
-							className="mt-8 lg:mt-4 pl-4 grid grid-cols-1 sm:grid-cols-2 sm:gap-2 md:gap-3 lg:gap-5 text-base lg:text-xl text-gray-800 list-disc font-semibold"
-							variants={variants}
-							transition={{ delay: 0.6 }}
-						>
+						<motion.ul className="mt-8 lg:mt-4 pl-4 grid grid-cols-1 sm:grid-cols-2 sm:gap-2 md:gap-3 lg:gap-5 text-base lg:text-xl text-gray-800 list-disc font-semibold" variants={variants} transition={{ delay: 0.6 }}>
 							<li>Prompt-Based Travel Suggestions</li>
 							<li>AI Curated Destination Picks</li>
 							<li>Top 5 Personalized Recommendations</li>

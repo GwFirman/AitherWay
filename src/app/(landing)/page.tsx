@@ -11,6 +11,7 @@ import UserReview from "@/components/UserReview";
 import Footer from "@/components/Footer";
 import Feature from "@/components/Feature";
 import PolaroidPhotoMbuluk from "@/assets/images/PantaiMbuluk.jpg";
+import Image from "next/image";
 
 export default function LandingPage() {
 	useEffect(() => {
@@ -45,7 +46,7 @@ export default function LandingPage() {
 				<motion.div className="absolute z-50 bottom-52 left-24 mx-auto hidden justify-start xl:flex" initial={{ opacity: 0, y: 60, rotate: 24, scale: 0.9 }} animate={{ opacity: 1, y: 0, rotate: -12, scale: 0.95 }} transition={{ delay: 1.6, duration: 0.7, ease: "easeOut" }}>
 					<div className="absolute w-[200px] h-[280px] rotate-18 scale-95">
 						<div className="bg-white p-2 shadow-md rounded-md w-full h-full flex items-center justify-center">
-							<img src={PolaroidPhotoMbuluk.src} alt="Polaroid" className="w-full h-full object-cover rounded" />
+							<Image width={300} height={0} src={PolaroidPhotoMbuluk.src} alt="Polaroid" className="w-full h-full object-cover rounded" />
 						</div>
 					</div>
 				</motion.div>
