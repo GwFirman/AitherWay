@@ -1,3 +1,13 @@
+## Disclaimer
+
+Script ini dibuat semata-mata untuk tujuan belajar, edukasi, dan eksplorasi teknis pribadi.
+
+Konten dan struktur kode ini tidak dimaksudkan untuk digunakan dalam konteks produksi, komersial, atau terhadap layanan pihak ketiga yang memiliki batasan penggunaan tertentu.
+
+Segala bentuk penggunaan di luar konteks pembelajaran adalah tanggung jawab masing-masing individu. Pastikan untuk selalu menghormati kebijakan dan ketentuan yang berlaku dari layanan atau platform yang relevan secara teknis.
+
+
+
 ## Struktur Direktori
 
 ### `lib/`
