@@ -114,18 +114,13 @@ export default class GMaps {
 						const aTagClicked = await this.repeatClickUntilSuccess(page, aTag);
 						if (!aTagClicked) continue;
 
-						await page.waitForNetworkIdle({ concurrency: 8 });
-						await page.waitForSelector(`div[jstcache="4"]`, { visible: true });
-
-						await page.waitForSelector(`div[jstcache="4"] h1`, { visible: true });
-						const nama = await page.$eval(`div[jstcache="4"] h1`, (el) => el.textContent?.trim());
-
-						if (saveToDB && nama) {
+						let nama1 = await page.$eval(`div[role="feed"] > div > div > div .fontHeadlineSmall`, (el) => el.textContent?.trim());
+						if (saveToDB && nama1) {
 							const existingPlace = await prisma.maps.findUnique({
-								where: { nama: nama },
+								where: { nama: nama1 },
 							});
 							if (existingPlace) {
-								console.log(`Tempat "${nama}" sudah ada di database, diskip.`);
+								console.log(`Tempat "${nama1}" sudah ada di database, diskip.`);
 								// const backButtons = await page.$$("svg.NMm5M");
 								// if (backButtons[1]) {
 								// 	await this.repeatClickUntilSuccess(page, backButtons[1]);
@@ -135,6 +130,12 @@ export default class GMaps {
 								continue;
 							}
 						}
+
+						await page.waitForNetworkIdle({ concurrency: 8 });
+						await page.waitForSelector(`div[jstcache="4"]`, { visible: true });
+
+						await page.waitForSelector(`div[jstcache="4"] h1`, { visible: true });
+						const nama = await page.$eval(`div[jstcache="4"] h1`, (el) => el.textContent?.trim());
 
 						const alamat = await page.$eval(`div[jstcache="4"] div.Io6YTe`, (el) => el.textContent?.trim());
 						const gambar = await page.$eval(`div[jstcache="4"] img`, (el) => el.getAttribute("src"));
