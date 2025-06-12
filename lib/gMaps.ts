@@ -109,11 +109,6 @@ export default class GMaps {
 						if (!aTag) continue;
 
 						await aTag.evaluate((el) => el.scrollIntoView({ behavior: "instant", block: "start" }));
-						await page.waitForNetworkIdle({ concurrency: 8 });
-
-						const aTagClicked = await this.repeatClickUntilSuccess(page, aTag);
-						if (!aTagClicked) continue;
-
 						let nama1 = await page.$eval(`div[role="feed"] > div > div > div .fontHeadlineSmall`, (el) => el.textContent?.trim());
 						if (saveToDB && nama1) {
 							const existingPlace = await prisma.maps.findUnique({
@@ -121,15 +116,13 @@ export default class GMaps {
 							});
 							if (existingPlace) {
 								console.log(`Tempat "${nama1}" sudah ada di database, diskip.`);
-								// const backButtons = await page.$$("svg.NMm5M");
-								// if (backButtons[1]) {
-								// 	await this.repeatClickUntilSuccess(page, backButtons[1]);
-								// }
-								await page.click(`svg.NMm5M`);
-								await page.waitForSelector(`div[jstcache="4"]`, { hidden: true });
 								continue;
 							}
 						}
+						await page.waitForNetworkIdle({ concurrency: 8 });
+
+						const aTagClicked = await this.repeatClickUntilSuccess(page, aTag);
+						if (!aTagClicked) continue;
 
 						await page.waitForNetworkIdle({ concurrency: 8 });
 						await page.waitForSelector(`div[jstcache="4"]`, { visible: true });
