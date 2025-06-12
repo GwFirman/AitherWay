@@ -120,6 +120,7 @@ export default class GMaps {
 							}
 						}
 						await page.waitForNetworkIdle({ concurrency: 8 });
+						await page.waitForNetworkIdle({ concurrency: 8 });
 
 						const aTagClicked = await this.repeatClickUntilSuccess(page, aTag);
 						if (!aTagClicked) continue;
