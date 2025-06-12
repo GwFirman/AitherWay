@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { MapPin } from "lucide-react";
 import { FaCircle, FaRegCircle, FaAdjust } from "react-icons/fa";
+import Link from "next/link";
 
 const travelData = [
   {
@@ -51,12 +52,7 @@ function renderCircles(rating: number) {
     if (rating >= i) {
       circles.push(<FaCircle key={i} className="text-rose-500 size-4" />);
     } else if (rating > i - 1 && rating < i) {
-      circles.push(
-        <FaAdjust
-          key={i}
-          className="text-rose-500 size-4"
-        />
-      );
+      circles.push(<FaAdjust key={i} className="text-rose-500 size-4" />);
     } else {
       circles.push(<FaRegCircle key={i} className="text-rose-500" size={18} />);
     }
@@ -86,7 +82,17 @@ const TravelCard = () => {
                   {id.toString().padStart(2, "0")}
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">
-                  <a href="">{title}</a>
+                  <Link
+                    href={{
+                      pathname: `/recomendation/${id}`,
+                      query: {
+                        title,
+                      },
+                    }}
+                    target="_blank"
+                  >
+                    {title}
+                  </Link>
                 </h1>
 
                 {/* Rating - Improved alignment */}
@@ -103,8 +109,8 @@ const TravelCard = () => {
                     size={14}
                     className="group-hover:scale-110 transition-transform duration-200"
                   />
-                  <span className="underline decoration-1 underline-offset-4 decoration-slate-200 group-hover:decoration-rose-200">
-                    <a href="">{location}</a>
+                  <span className="underline decoration-1 underline-offset-4 cursor-pointer decoration-slate-200 group-hover:decoration-rose-200">
+                    {location}
                   </span>
                 </div>
               </div>

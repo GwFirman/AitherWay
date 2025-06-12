@@ -9,9 +9,9 @@ const DashboardChat = () => {
       <div>
         <RecomendationNavbar />
       </div>
-      <div className="pt-25">
+      <div className="pt-20">
         <TravelCard />
-      </div>
+        </div>
     </div>
   );
 };
