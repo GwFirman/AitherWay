@@ -109,6 +109,7 @@ export default class GMaps {
 						if (!aTag) continue;
 
 						await aTag.evaluate((el) => el.scrollIntoView({ behavior: "instant", block: "start" }));
+						await page.waitForNetworkIdle({ concurrency: 8 });
 						let nama1 = await page.$eval(`div[role="feed"] > div > div > div .fontHeadlineSmall`, (el) => el.textContent?.trim());
 						if (saveToDB && nama1) {
 							const existingPlace = await prisma.maps.findUnique({
@@ -119,7 +120,6 @@ export default class GMaps {
 								continue;
 							}
 						}
-						await page.waitForNetworkIdle({ concurrency: 8 });
 
 						const aTagClicked = await this.repeatClickUntilSuccess(page, aTag);
 						if (!aTagClicked) continue;
