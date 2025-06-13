@@ -6,6 +6,7 @@
 
 generator client {
     provider = "prisma-client-js"
+    // output   = "../src/app/generated/prisma"
 }
 
 datasource db {
@@ -14,18 +15,62 @@ datasource db {
     directUrl = env("DIRECT_URL")
 }
 
-model Users {
-    id        String   @id @default(uuid())
-    nama      String
-    email     String   @unique
-    password  String
+model User {
+    id            String    @id @default(cuid())
+    name          String?
+    email         String    @unique
+    emailVerified DateTime?
+    image         String?
+    accounts      Account[]
+    sessions      Session[]
+
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+}
+
+model Account {
+    userId            String
+    type              String
+    provider          String
+    providerAccountId String
+    refresh_token     String?
+    access_token      String?
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String?
+    session_state     String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@id([provider, providerAccountId])
+}
+
+model Session {
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+    identifier String
+    token      String
+    expires    DateTime
+
+    @@id([identifier, token])
 }
 
 model Maps {
     id           String   @id @default(uuid())
     nama         String   @unique
+    slug         String   @unique
     rating       String
     deskripsi    String   @default("")
     alamat       String
@@ -53,28 +98,28 @@ model Reviews {
     mapsId String
 }
 
-model Conversations {
-    id        String   @id @default(uuid())
-    nama      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+// model Conversations {
+//     id        String   @id @default(uuid())
+//     nama      String
+//     createdAt DateTime @default(now())
+//     updatedAt DateTime @updatedAt
 
-    messages Messages[]
-}
+//     messages Messages[]
+// }
 
-model Messages {
-    id        String   @id @default(uuid())
-    name      String
-    sender    Sender   @default(user)
-    content   String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+// model Messages {
+//     id        String   @id @default(uuid())
+//     name      String
+//     sender    Sender   @default(user)
+//     content   String
+//     createdAt DateTime @default(now())
+//     updatedAt DateTime @updatedAt
 
-    Conversations   Conversations @relation(fields: [conversationsId], references: [id])
-    conversationsId String
-}
+//     Conversations   Conversations @relation(fields: [conversationsId], references: [id])
+//     conversationsId String
+// }
 
-enum Sender {
-    user
-    bot
-}
+// enum Sender {
+//     user
+//     bot
+// }
