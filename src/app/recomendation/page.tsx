@@ -1,165 +1,140 @@
 "use client";
 
-import RecomendationPage from "@/components/RecomendationPage";
-import Footer from "@/components/Footer";
+import { useEffect, Suspense } from "react";
+import Link from "next/link";
+import { MapPin, Loader2, AlertCircleIcon } from "lucide-react";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import { FaCircle, FaRegCircle, FaAdjust } from "react-icons/fa";
+import { Badge } from "@/components/ui/badge";
+import { useSearch } from "../../contexts/SearchContext";
+import slug from "slug";
+import { useSearchParams } from "next/navigation";
 
-export default function RecomendationPlaces() {
+function renderCircles(rating: number) {
+	const circles = [];
+
+	for (let i = 1; i <= 5; i++) {
+		const diff = rating - (i - 1);
+
+		if (diff >= 1) {
+			circles.push(<FaCircle key={i} className="size-4 text-rose-500" />);
+		} else if (diff >= 0.25 && diff <= 0.75) {
+			circles.push(<FaAdjust key={i} className="size-4 text-rose-500" />);
+		} else if (diff > 0) {
+			circles.push(<FaAdjust key={i} className="size-4 text-rose-500 opacity-70" />);
+		} else {
+			circles.push(<FaRegCircle key={i} className="text-rose-500" size={18} />);
+		}
+	}
+
+	return circles;
+}
+
+function RecomendationContent() {
+	const { fetchRecommendations, isLoading, results, coordinates, error, setQuery } = useSearch();
+	const searchParams = useSearchParams();
+	const search = searchParams.get("q");
+
+	const handleSearch = async (query: string) => {
+		if (!coordinates) return;
+
+		try {
+			fetchRecommendations(query, `${coordinates.lat},${coordinates.lng}`);
+		} catch (error) {
+			console.error("API Error:", error);
+		}
+	};
+
+	useEffect(() => {
+		setQuery(search || "");
+		if (search && coordinates && !results.data.length) {
+			handleSearch(search);
+		}
+	}, [search, coordinates, results]);
+
 	return (
-		<>
-			<RecomendationPage />
-			<Footer />
-		</>
+		<div className="flex min-h-screen flex-col gap-6 px-4 pt-20">
+			{error && (
+				<div className="flex grow flex-row items-center gap-6 pt-32">
+					<AlertCircleIcon />
+					<p className="text-2xl font-bold">{error}</p>
+				</div>
+			)}
+			{isLoading && (
+				<div className="flex grow flex-col items-center gap-6 pt-32">
+					<Loader2 className="animate-spin" />
+				</div>
+			)}
+			{!isLoading && results.data.length === 0 && (
+				<div className="flex grow flex-col items-center gap-6 pt-32">
+					<p className="text-3xl font-bold">Try searching to get started</p>
+					<p>Start searching for recommendations to discover places tailored for you.</p>
+				</div>
+			)}
+			<div className="flex flex-col items-center gap-4 py-8">
+				{results.data &&
+					results.data.map(([id, nama, alamat, distance_km, deskripsi, harga, rating, total_ulasan, gambar], i) => (
+						<motion.div animate={{ opacity: [0, 1], y: [-70, 0] }} transition={{ delay: i * 0.3 }} key={id}>
+							<Link href={`/recomendation/${slug(nama)}`} className="mx-auto flex max-w-4xl flex-col overflow-hidden rounded-2xl bg-white/95 shadow-sm backdrop-blur-md xl:flex-row">
+								<Image src={gambar} alt={nama} width={320} height={0} className="aspect-[4/3] w-full max-w-[320px] object-cover" />
+								<div className="flex flex-1 flex-col justify-between bg-gradient-to-br from-white to-slate-50/50 p-6 xl:p-8">
+									<div>
+										<div className="flex flex-col">
+											<div className="text-md font-medium tracking-wider text-rose-400/80">{(i + 1).toString().padStart(2, "0")}</div>
+											<h1 className="text-2xl font-bold tracking-tight text-slate-800 sm:text-3xl">{nama}</h1>
+											<p className="text-sm">{distance_km} KM</p>
+											<div className="my-2 text-sm font-semibold text-slate-600">
+												{harga ? (
+													<Badge variant="secondary" className="rounded-md bg-rose-100 px-2 py-1 text-rose-600">
+														{harga === "Gratis" ? "Free" : `${harga} IDR`}
+													</Badge>
+												) : (
+													<span className="opacity-0">-</span>
+												)}
+											</div>
+											<div className="mt-1 flex items-center gap-2">
+												<span className="text-sm font-semibold text-slate-600">{rating}</span>
+												<div className="flex items-center gap-0.5">{renderCircles(parseFloat(rating))}</div>
+												<span className="text-xs font-medium text-slate-500">{`(${total_ulasan} reviews)`}</span>
+											</div>
+											<div className="group mt-1 flex items-center gap-1.5 text-sm text-slate-500 transition-colors duration-200 hover:text-rose-500">
+												<MapPin size={14} className="transition-transform duration-200 group-hover:scale-110" />
+												<span className="cursor-pointer underline decoration-slate-200 decoration-1 underline-offset-4 group-hover:decoration-rose-200">{alamat}</span>
+											</div>
+										</div>
+										<div className="mt-6">
+											<p
+												className="overflow-hidden text-base leading-relaxed text-slate-600"
+												style={{
+													display: "-webkit-box",
+													WebkitLineClamp: 3,
+													WebkitBoxOrient: "vertical",
+												}}
+											>
+												{deskripsi}
+											</p>
+										</div>
+									</div>
+								</div>
+							</Link>
+						</motion.div>
+					))}
+			</div>
+		</div>
 	);
 }
 
-// "use client";
-// import TravelCard from "@/components/TravelCard";
-// import RecomendationNavbar from "@/components/RecomendationNavbar";
-// import { useState, useEffect } from "react";
-// import Link from "next/link";
-// import { MapPin } from "lucide-react";
-// import { Inter } from "next/font/google";
-// import SearchBot from "@/components/ui/search-bot";
-// import axios from "axios";
-// import { useSearchParams } from "next/navigation";
-
-// const inter = Inter({
-// 	weight: ["400", "500", "600", "700"],
-// 	subsets: ["latin"],
-// 	display: "swap",
-// });
-
-// const DashboardChat = () => {
-// 	const [location, setLocation] = useState<string>("Loading location...");
-// 	const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
-// 	const [searchResults, setSearchResults] = useState<any>(null);
-// 	const [loading, setLoading] = useState(true); // ✅ TAMBAH STATE LOADING
-// 	const searchParams = useSearchParams();
-// 	const q = searchParams.get("q");
-// 	const [messages, setMessages] = useState<string[]>([]);
-
-// 	const handleSearch = async (query: string) => {
-// 		try {
-// 			await fetchRecommendations(query);
-// 		} catch (error) {
-// 			console.error("Search error:", error);
-// 		}
-// 	};
-
-// 	const fetchRecommendations = async (searchQuery?: string) => {
-// 		try {
-// 			setLoading(true); // ✅ SET LOADING TRUE
-// 			const queryParams = new URLSearchParams();
-// 			const finalQuery = searchQuery || q || "wisata";
-// 			queryParams.append("q1", finalQuery);
-
-// 			if (coordinates) {
-// 				queryParams.append("q2", `${coordinates.lat},${coordinates.lng}`);
-// 			} else if (location && location !== "Loading location..." && location !== "Location access denied" && location !== "Geolocation not supported") {
-// 				queryParams.append("q2", location);
-// 			} else {
-// 				queryParams.append("q2", "purwokerto");
-// 			}
-
-// 			const response = await fetch(`/api/recomendation?${queryParams.toString()}`);
-// 			if (!response.body) {
-// 				console.error("Tidak ada response body");
-// 				setLoading(false); // ✅ SET LOADING FALSE MESKI GAGAL
-// 				return;
-// 			}
-
-// 			const reader = response.body.getReader();
-// 			const decoder = new TextDecoder("utf-8");
-// 			let buffer = "";
-
-// 			while (true) {
-// 				const { done, value } = await reader.read();
-// 				if (done) break;
-// 				buffer += decoder.decode(value, { stream: true });
-// 				const parts = buffer.split("\n\n");
-// 				buffer = parts.pop() || "";
-// 				for (const part of parts) {
-// 					const lines = part.split("\n");
-// 					const dataLine = lines.find((line) => line.startsWith("data:"));
-// 					if (dataLine) {
-// 						const data = dataLine.replace(/^data:\s*/, "");
-// 						try {
-// 							const parsedData = JSON.parse(data);
-// 							if (Array.isArray(parsedData) && parsedData.length > 1) {
-// 								setSearchResults(parsedData[1]);
-// 							}
-// 						} catch {
-// 							setMessages((prev) => [...prev, data]);
-// 						}
-// 					}
-// 				}
-// 			}
-// 			setLoading(false); // ✅ SET LOADING FALSE SAAT SELESAI
-// 		} catch (error) {
-// 			console.error("Fetch recommendations error:", error);
-// 			setLoading(false); // ✅ SET LOADING FALSE SAAT ERROR
-// 		}
-// 	};
-
-// 	useEffect(() => {
-// 		if ("geolocation" in navigator) {
-// 			navigator.geolocation.getCurrentPosition(
-// 				(position) => {
-// 					const { latitude, longitude } = position.coords;
-// 					setLocation(`${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
-// 					setCoordinates({ lat: latitude, lng: longitude });
-// 				},
-// 				() => {
-// 					setLocation("Location access denied");
-// 				},
-// 				{
-// 					enableHighAccuracy: true,
-// 					timeout: 5000,
-// 					maximumAge: 0,
-// 				}
-// 			);
-// 		} else {
-// 			setLocation("Geolocation not supported");
-// 		}
-// 	}, []);
-
-// 	useEffect(() => {
-// 		if (q) {
-// 			handleSearch(q);
-// 		}
-// 	}, [q]);
-
-// 	useEffect(() => {
-// 		if (!q && (coordinates || (location && location !== "Loading location..." && location !== "Location access denied" && location !== "Geolocation not supported"))) {
-// 			fetchRecommendations();
-// 		}
-// 	}, [coordinates, location, q]);
-
-// 	return (
-// 		<div className="relative">
-// 			<div>
-// 				<nav className={`fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-lg border-b border-slate-200/80 ${inter.className}`}>
-// 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-// 						<div className="flex items-center justify-between h-24">
-// 							<div className="flex items-center gap-6 flex-1">
-// 								<Link href="/" className="flex-shrink-0 flex items-center">
-// 									<span className="text-xl font-bold text-slate-800">AitherWay</span>
-// 								</Link>
-// 								<SearchBot onSearch={handleSearch} className="hidden md:block" />
-// 							</div>
-// 							<div className={`flex items-center gap-2 ${inter.className}`}>
-// 								<MapPin size={20} className="text-pink-600" />
-// 								<span className="text-sm font-medium text-slate-700">{location}</span>
-// 							</div>
-// 						</div>
-// 					</div>
-// 				</nav>
-// 			</div>
-// 			<div className="pt-24">
-// 				<TravelCard searchResults={searchResults} loading={loading} />
-// 			</div>
-// 		</div>
-// 	);
-// };
-
-// export default DashboardChat;
+export default function RecomendationPageWithSuspense() {
+	return (
+		<Suspense
+			fallback={
+				<div className="flex min-h-screen items-center justify-center">
+					<Loader2 className="animate-spin" />
+				</div>
+			}
+		>
+			<RecomendationContent />
+		</Suspense>
+	);
+}

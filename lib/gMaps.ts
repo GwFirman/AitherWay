@@ -2,6 +2,7 @@ import puppeteer, { Browser, Page } from "puppeteer-core";
 import path from "path";
 import { PrismaClient } from "@prisma/client";
 import { GoogleGenAI } from "@google/genai";
+import slug from "slug";
 
 const prisma = new PrismaClient();
 
@@ -119,13 +120,13 @@ export default class GMaps {
 								continue;
 							}
 						}
-						await page.waitForNetworkIdle({ concurrency: 8 });
-						await page.waitForNetworkIdle({ concurrency: 8 });
+						await page.waitForNetworkIdle({ concurrency: 7 });
+						await page.waitForNetworkIdle({ concurrency: 7 });
 
 						const aTagClicked = await this.repeatClickUntilSuccess(page, aTag);
 						if (!aTagClicked) continue;
 
-						await page.waitForNetworkIdle({ concurrency: 8 });
+						await page.waitForNetworkIdle({ concurrency: 7 });
 						await page.waitForSelector(`div[jstcache="4"]`, { visible: true });
 
 						await page.waitForSelector(`div[jstcache="4"] h1`, { visible: true });
@@ -173,7 +174,7 @@ export default class GMaps {
 									throw new Error("Tombol tab ulasan tidak ditemukan.");
 								}
 							});
-							await page.waitForNetworkIdle({ concurrency: 8 });
+							await page.waitForNetworkIdle({ concurrency: 7 });
 
 							await page.waitForSelector(`div[jstcache="4"] h1`, { hidden: true });
 							await page.waitForSelector(`div[data-review-id][jslog]`, { visible: true });
@@ -208,7 +209,7 @@ export default class GMaps {
 									});
 									ulasans.push(data);
 								}
-								await page.waitForNetworkIdle({ concurrency: 8 });
+								await page.waitForNetworkIdle({ concurrency: 7 });
 							}
 						} catch (error) {
 							console.error(`Gagal memproses ulasan untuk "${nama}". Melanjutkan ke data berikutnya. Error:`, error);
@@ -236,7 +237,9 @@ export default class GMaps {
 										{
 											text: `Berdasarkan nama tempat "${nama}" dan review berikut: ${ulasans
 												.map((u) => u.ulasan)
-												.join(" ")}. Jika ini adalah tempat wisata yang memerlukan tiket masuk, berikan estimasi harga tiket untuk 1 orang dalam format string (contoh: "Rp 15.000"). Jika gratis, kembalikan string "Gratis". Jika tidak ada informasi harga yang jelas di review, kembalikan string kosong "". Hanya kembalikan string hasilnya, tanpa penjelasan tambahan.`,
+												.join(
+													" ",
+												)}. Jika ini adalah tempat wisata yang memerlukan tiket masuk, berikan estimasi harga tiket untuk 1 orang dalam format string (contoh: "Rp 15.000"). Jika gratis, kembalikan string "Gratis". Jika tidak ada informasi harga yang jelas di review, kembalikan string kosong "". Hanya kembalikan string hasilnya, tanpa penjelasan tambahan.`,
 										},
 									],
 								},
@@ -248,7 +251,9 @@ export default class GMaps {
 							}
 							harga = hargaText.trim().replace(/^"|"$/g, "");
 
-							const deskripsiContents = [{ role: "user", parts: [{ text: `Berdasarkan nama tempat "${nama}", alamat "${alamat}", dan review berikut: ${ulasans.map((u) => u.ulasan).join(" ")}. Buatkan deskripsi singkat dan menarik tentang tempat ini dalam 2-3 kalimat yang menggambarkan keunikan dan daya tariknya.` }] }];
+							const deskripsiContents = [
+								{ role: "user", parts: [{ text: `Berdasarkan nama tempat "${nama}", alamat "${alamat}", dan review berikut: ${ulasans.map((u) => u.ulasan).join(" ")}. Buatkan deskripsi singkat dan menarik tentang tempat ini dalam 2-3 kalimat yang menggambarkan keunikan dan daya tariknya.` }] },
+							];
 							const deskripsiResponse = await ai.models.generateContentStream({ model, config, contents: deskripsiContents });
 							for await (const chunk of deskripsiResponse) {
 								deskripsi += chunk.text || "";
@@ -258,8 +263,11 @@ export default class GMaps {
 							console.error("Error generating with Gemini:", error);
 						}
 
+						// Generate slug from nama
+						const generatedSlug = slug(nama || "", { lower: true });
+
 						// Tambahan pada console.log untuk mencetak juga map_url
-						console.log({ nama, alamat, gambar, rating, ulasans, total_ulasan, harga, deskripsi, map_url: page.url() });
+						console.log({ nama, slug: generatedSlug, alamat, gambar, rating, ulasans, total_ulasan, harga, deskripsi, map_url: page.url() });
 						console.log("");
 
 						const match = page.url().match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
@@ -269,6 +277,7 @@ export default class GMaps {
 							await prisma.maps.upsert({
 								where: { nama: nama || "" },
 								update: {
+									slug: generatedSlug,
 									alamat: alamat || "",
 									gambar: gambar || "",
 									rating: rating || "",
@@ -288,6 +297,7 @@ export default class GMaps {
 								},
 								create: {
 									nama: nama || "",
+									slug: generatedSlug,
 									alamat: alamat || "",
 									gambar: gambar || "",
 									rating: rating || "",
@@ -361,7 +371,7 @@ export default class GMaps {
 							throw new Error("Tombol tab ulasan tidak ditemukan.");
 						}
 					});
-					await page.waitForNetworkIdle({ concurrency: 8 });
+					await page.waitForNetworkIdle({ concurrency: 7 });
 
 					await page.waitForSelector(`div[jstcache="3"] h1`, { hidden: true });
 					await page.waitForSelector(`div[data-review-id][jslog]`, { visible: true });
@@ -396,7 +406,7 @@ export default class GMaps {
 							});
 							ulasans.push(data);
 						}
-						await page.waitForNetworkIdle({ concurrency: 8 });
+						await page.waitForNetworkIdle({ concurrency: 7 });
 					}
 				} catch (error) {
 					console.error(`Gagal memproses ulasan untuk "${nama}". Menghentikan proses untuk item ini. Error:`, error);
@@ -417,7 +427,9 @@ export default class GMaps {
 								{
 									text: `Berdasarkan nama tempat "${nama}" dan review berikut: ${ulasans
 										.map((u) => u.ulasan)
-										.join(" ")}. Jika ini adalah tempat wisata yang memerlukan tiket masuk, berikan estimasi harga tiket untuk 1 orang dalam format string (contoh: "Rp 15.000"). Jika gratis, kembalikan string "Gratis". Jika tidak ada informasi harga yang jelas di review, kembalikan string kosong "". Hanya kembalikan string hasilnya, tanpa penjelasan tambahan.`,
+										.join(
+											" ",
+										)}. Jika ini adalah tempat wisata yang memerlukan tiket masuk, berikan estimasi harga tiket untuk 1 orang dalam format string (contoh: "Rp 15.000"). Jika gratis, kembalikan string "Gratis". Jika tidak ada informasi harga yang jelas di review, kembalikan string kosong "". Hanya kembalikan string hasilnya, tanpa penjelasan tambahan.`,
 								},
 							],
 						},
@@ -429,7 +441,9 @@ export default class GMaps {
 					}
 					harga = hargaText.trim().replace(/^"|"$/g, "");
 
-					const deskripsiContents = [{ role: "user", parts: [{ text: `Berdasarkan nama tempat "${nama}", alamat "${alamat}", dan review berikut: ${ulasans.map((u) => u.ulasan).join(" ")}. Buatkan deskripsi singkat dan menarik tentang tempat ini dalam 2-3 kalimat yang menggambarkan keunikan dan daya tariknya.` }] }];
+					const deskripsiContents = [
+						{ role: "user", parts: [{ text: `Berdasarkan nama tempat "${nama}", alamat "${alamat}", dan review berikut: ${ulasans.map((u) => u.ulasan).join(" ")}. Buatkan deskripsi singkat dan menarik tentang tempat ini dalam 2-3 kalimat yang menggambarkan keunikan dan daya tariknya.` }] },
+					];
 					const deskripsiResponse = await ai.models.generateContentStream({ model, config, contents: deskripsiContents });
 					for await (const chunk of deskripsiResponse) {
 						deskripsi += chunk.text || "";
@@ -439,8 +453,11 @@ export default class GMaps {
 					console.error("Error generating with Gemini:", error);
 				}
 
+				// Generate slug from nama
+				const generatedSlug = slug(nama || "", { lower: true });
+
 				// Tambahan pada console.log untuk mencetak juga map_url
-				console.log({ nama, alamat, gambar, rating, ulasans, total_ulasan, harga, deskripsi, map_url: page.url() });
+				console.log({ nama, slug: generatedSlug, alamat, gambar, rating, ulasans, total_ulasan, harga, deskripsi, map_url: page.url() });
 				console.log("");
 
 				const match = page.url().match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
@@ -450,6 +467,7 @@ export default class GMaps {
 					await prisma.maps.upsert({
 						where: { nama: nama || "" },
 						update: {
+							slug: generatedSlug,
 							alamat: alamat || "",
 							gambar: gambar || "",
 							rating: rating || "",
@@ -469,6 +487,7 @@ export default class GMaps {
 						},
 						create: {
 							nama: nama || "",
+							slug: generatedSlug,
 							alamat: alamat || "",
 							gambar: gambar || "",
 							rating: rating || "",
