@@ -3,21 +3,33 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-async function main() {
+// Daftar API key Gemini
+const geminiApiKeys = [
+	"AIzaSyD4c0l1Bs3-5EdA3dgnLntsiKfDiUXga4Y",
+	"AIzaSyBfLxwpCyWxQxOGSz6A27HNolJzC_CJ20k",
+	// Tambahkan key lain jika ada
+];
+
+// Fungsi untuk mengambil data acak yang belum punya deskripsi
+async function getRandomData() {
+	const count = await prisma.maps.count({ where: { deskripsi: "" } });
+	if (count === 0) return null;
+	const skip = Math.floor(Math.random() * count);
+	return prisma.maps.findFirst({
+		where: { deskripsi: "" },
+		include: { reviews: true },
+		skip,
+	});
+}
+
+async function worker(apiKey: string, workerId: number) {
 	let processedCount = 0;
 
 	while (true) {
-		const data = await prisma.maps.findFirst({
-			where: {
-				deskripsi: "", //
-			},
-			include: {
-				reviews: true,
-			},
-		});
+		const data = await getRandomData();
 
 		if (!data) {
-			console.log(`Selesai! Total data yang diproses: ${processedCount}`);
+			console.log(`[Worker ${workerId}] Selesai! Total data yang diproses: ${processedCount}`);
 			break;
 		}
 
@@ -29,7 +41,7 @@ async function main() {
 		let deskripsi: string = "";
 
 		try {
-			const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+			const ai = new GoogleGenAI({ apiKey });
 			const config = { responseMimeType: "text/plain" };
 			const model = "gemini-2.5-flash-preview-05-20";
 
@@ -77,25 +89,29 @@ async function main() {
 			});
 
 			processedCount++;
-			console.log(`[${processedCount}] Updated: ${nama}`);
-			console.log(`Harga: ${harga}`);
-			console.log(`Deskripsi: ${deskripsi}`);
+			console.log(`[Worker ${workerId}] [${processedCount}] Updated: ${nama}`);
+			console.log(`[Worker ${workerId}] Harga: ${harga}`);
+			console.log(`[Worker ${workerId}] Deskripsi: ${deskripsi}`);
 			console.log("---");
 		} catch (error) {
-			console.error(`Error processing ${nama}:`, error);
+			console.error(`[Worker ${workerId}] Error processing ${nama}:`, error);
 			if (!(error instanceof Error)) return;
 
 			// Check if it's a rate limit error (429)
 			if (error.message && error.message.includes("429")) {
-				console.log(`Rate limit exceeded. Waiting 25 seconds before retrying...`);
+				console.log(`[Worker ${workerId}] Rate limit exceeded. Waiting 25 seconds before retrying...`);
 				await new Promise((resolve) => setTimeout(resolve, 25000));
-				console.log(`Retrying ${nama}...`);
+				console.log(`[Worker ${workerId}] Retrying ${nama}...`);
 				continue; // Retry the same data
 			} else {
-				console.log(`Proses dihentikan karena error pada data: ${nama}`);
+				console.log(`[Worker ${workerId}] Proses dihentikan karena error pada data: ${nama}`);
 				break;
 			}
 		}
 	}
+}
+
+async function main() {
+	await Promise.all(geminiApiKeys.map((apiKey, idx) => worker(apiKey, idx + 1)));
 }
 main();
