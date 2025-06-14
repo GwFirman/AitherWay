@@ -53,7 +53,7 @@ export default class GMaps {
 		return false;
 	}
 
-	public async getDetails(search: string, saveToDB: boolean): Promise<void> {
+	public async getDetails(search: string, saveToDB: boolean, geminiApiKey?: string): Promise<void> {
 		let page: Page | null = null;
 
 		try {
@@ -226,41 +226,53 @@ export default class GMaps {
 						let harga: string = "";
 						let deskripsi: string = "";
 
-						try {
-							const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-							const config = { responseMimeType: "text/plain" };
-							const model = "gemini-2.5-flash-preview-05-20";
-							const hargaContents = [
-								{
-									role: "user",
-									parts: [
-										{
-											text: `Berdasarkan nama tempat "${nama}" dan review berikut: ${ulasans
-												.map((u) => u.ulasan)
-												.join(
-													" ",
-												)}. Jika ini adalah tempat wisata yang memerlukan tiket masuk, berikan estimasi harga tiket untuk 1 orang dalam format string (contoh: "Rp 15.000"). Jika gratis, kembalikan string "Gratis". Jika tidak ada informasi harga yang jelas di review, kembalikan string kosong "". Hanya kembalikan string hasilnya, tanpa penjelasan tambahan.`,
-										},
-									],
-								},
-							];
-							const hargaResponse = await ai.models.generateContentStream({ model, config, contents: hargaContents });
-							let hargaText = "";
-							for await (const chunk of hargaResponse) {
-								hargaText += chunk.text || "";
-							}
-							harga = hargaText.trim().replace(/^"|"$/g, "");
+						while (true) {
+							try {
+								const ai = new GoogleGenAI({ apiKey: geminiApiKey || process.env.GEMINI_API_KEY });
+								const config = { responseMimeType: "text/plain" };
+								const model = "gemini-2.5-flash-preview-05-20";
+								const hargaContents = [
+									{
+										role: "user",
+										parts: [
+											{
+												text: `Berdasarkan nama tempat "${nama}" dan review berikut: ${ulasans
+													.map((u) => u.ulasan)
+													.join(
+														" ",
+													)}. Jika ini adalah tempat wisata yang memerlukan tiket masuk, berikan estimasi harga tiket untuk 1 orang dalam format string (contoh: "Rp 15.000"). Jika gratis, kembalikan string "Gratis". Jika tidak ada informasi harga yang jelas di review, kembalikan string kosong "". Hanya kembalikan string hasilnya, tanpa penjelasan tambahan.`,
+											},
+										],
+									},
+								];
+								const hargaResponse = await ai.models.generateContentStream({ model, config, contents: hargaContents });
+								let hargaText = "";
+								for await (const chunk of hargaResponse) {
+									hargaText += chunk.text || "";
+								}
+								harga = hargaText.trim().replace(/^"|"$/g, "");
 
-							const deskripsiContents = [
-								{ role: "user", parts: [{ text: `Berdasarkan nama tempat "${nama}", alamat "${alamat}", dan review berikut: ${ulasans.map((u) => u.ulasan).join(" ")}. Buatkan deskripsi singkat dan menarik tentang tempat ini dalam 2-3 kalimat yang menggambarkan keunikan dan daya tariknya.` }] },
-							];
-							const deskripsiResponse = await ai.models.generateContentStream({ model, config, contents: deskripsiContents });
-							for await (const chunk of deskripsiResponse) {
-								deskripsi += chunk.text || "";
+								const deskripsiContents = [
+									{ role: "user", parts: [{ text: `Berdasarkan nama tempat "${nama}", alamat "${alamat}", dan review berikut: ${ulasans.map((u) => u.ulasan).join(" ")}. Buatkan deskripsi singkat dan menarik tentang tempat ini dalam 2-3 kalimat yang menggambarkan keunikan dan daya tariknya.` }] },
+								];
+								const deskripsiResponse = await ai.models.generateContentStream({ model, config, contents: deskripsiContents });
+								for await (const chunk of deskripsiResponse) {
+									deskripsi += chunk.text || "";
+								}
+								deskripsi = deskripsi.trim();
+								break;
+							} catch (error: any) {
+								// Check if it's a rate limit error (429)
+								if (error.message && error.message.includes("429")) {
+									console.log("Rate limit exceeded. Waiting 25 seconds before retrying...");
+									await new Promise((resolve) => setTimeout(resolve, 25000));
+									console.log(`Retrying ${nama}...`);
+									continue; // Retry the same data
+								} else {
+									console.log(`Proses dihentikan karena error pada data: ${nama}`);
+									break;
+								}
 							}
-							deskripsi = deskripsi.trim();
-						} catch (error) {
-							console.error("Error generating with Gemini:", error);
 						}
 
 						// Generate slug from nama
@@ -340,7 +352,13 @@ export default class GMaps {
 
 				const alamat = await page.$eval(`div[jstcache="3"] div.Io6YTe`, (el) => el.textContent?.trim());
 				const gambar = await page.$eval(`div[jstcache="3"] img`, (el) => el.getAttribute("src"));
-				const total_ulasan = await page.$eval(`div[jstcache="3"] div.TIHn2 .F7nice span span span[aria-label]`, (el) => el.textContent?.match(/\d[\d.,]*/)?.[0] || "");
+				let total_ulasan = "";
+				const totalUlasanEl = await page.$(`div[jstcache="3"] div.TIHn2 .F7nice span span span[aria-label]`);
+				if (totalUlasanEl) {
+					total_ulasan = await page.evaluate((el) => el.textContent?.match(/\d[\d.,]*/)?.[0] || "", totalUlasanEl);
+				} else {
+					total_ulasan = "0";
+				}
 
 				let rating;
 				let ulasans: any[] = [];
@@ -416,41 +434,53 @@ export default class GMaps {
 				let harga: string = "";
 				let deskripsi: string = "";
 
-				try {
-					const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-					const config = { responseMimeType: "text/plain" };
-					const model = "gemini-2.5-flash-preview-05-20";
-					const hargaContents = [
-						{
-							role: "user",
-							parts: [
-								{
-									text: `Berdasarkan nama tempat "${nama}" dan review berikut: ${ulasans
-										.map((u) => u.ulasan)
-										.join(
-											" ",
-										)}. Jika ini adalah tempat wisata yang memerlukan tiket masuk, berikan estimasi harga tiket untuk 1 orang dalam format string (contoh: "Rp 15.000"). Jika gratis, kembalikan string "Gratis". Jika tidak ada informasi harga yang jelas di review, kembalikan string kosong "". Hanya kembalikan string hasilnya, tanpa penjelasan tambahan.`,
-								},
-							],
-						},
-					];
-					const hargaResponse = await ai.models.generateContentStream({ model, config, contents: hargaContents });
-					let hargaText = "";
-					for await (const chunk of hargaResponse) {
-						hargaText += chunk.text || "";
-					}
-					harga = hargaText.trim().replace(/^"|"$/g, "");
+				while (true) {
+					try {
+						const ai = new GoogleGenAI({ apiKey: geminiApiKey || process.env.GEMINI_API_KEY });
+						const config = { responseMimeType: "text/plain" };
+						const model = "gemini-2.5-flash-preview-05-20";
+						const hargaContents = [
+							{
+								role: "user",
+								parts: [
+									{
+										text: `Berdasarkan nama tempat "${nama}" dan review berikut: ${ulasans
+											.map((u) => u.ulasan)
+											.join(
+												" ",
+											)}. Jika ini adalah tempat wisata yang memerlukan tiket masuk, berikan estimasi harga tiket untuk 1 orang dalam format string (contoh: "Rp 15.000"). Jika gratis, kembalikan string "Gratis". Jika tidak ada informasi harga yang jelas di review, kembalikan string kosong "". Hanya kembalikan string hasilnya, tanpa penjelasan tambahan.`,
+									},
+								],
+							},
+						];
+						const hargaResponse = await ai.models.generateContentStream({ model, config, contents: hargaContents });
+						let hargaText = "";
+						for await (const chunk of hargaResponse) {
+							hargaText += chunk.text || "";
+						}
+						harga = hargaText.trim().replace(/^"|"$/g, "");
 
-					const deskripsiContents = [
-						{ role: "user", parts: [{ text: `Berdasarkan nama tempat "${nama}", alamat "${alamat}", dan review berikut: ${ulasans.map((u) => u.ulasan).join(" ")}. Buatkan deskripsi singkat dan menarik tentang tempat ini dalam 2-3 kalimat yang menggambarkan keunikan dan daya tariknya.` }] },
-					];
-					const deskripsiResponse = await ai.models.generateContentStream({ model, config, contents: deskripsiContents });
-					for await (const chunk of deskripsiResponse) {
-						deskripsi += chunk.text || "";
+						const deskripsiContents = [
+							{ role: "user", parts: [{ text: `Berdasarkan nama tempat "${nama}", alamat "${alamat}", dan review berikut: ${ulasans.map((u) => u.ulasan).join(" ")}. Buatkan deskripsi singkat dan menarik tentang tempat ini dalam 2-3 kalimat yang menggambarkan keunikan dan daya tariknya.` }] },
+						];
+						const deskripsiResponse = await ai.models.generateContentStream({ model, config, contents: deskripsiContents });
+						for await (const chunk of deskripsiResponse) {
+							deskripsi += chunk.text || "";
+						}
+						deskripsi = deskripsi.trim();
+						break;
+					} catch (error: any) {
+						// Check if it's a rate limit error (429)
+						if (error.message && error.message.includes("429")) {
+							console.log("Rate limit exceeded. Waiting 25 seconds before retrying...");
+							await new Promise((resolve) => setTimeout(resolve, 25000));
+							console.log(`Retrying ${nama}...`);
+							continue; // Retry the same data
+						} else {
+							console.log(`Proses dihentikan karena error pada data: ${nama}`);
+							break;
+						}
 					}
-					deskripsi = deskripsi.trim();
-				} catch (error) {
-					console.error("Error generating with Gemini:", error);
 				}
 
 				// Generate slug from nama

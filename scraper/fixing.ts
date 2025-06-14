@@ -33,6 +33,7 @@ async function main() {
 			const config = { responseMimeType: "text/plain" };
 			const model = "gemini-2.5-flash-preview-05-20";
 
+			// Generate harga
 			const hargaContents = [
 				{
 					role: "user",
@@ -49,6 +50,7 @@ async function main() {
 			}
 			harga = harga.trim().replace(/^"|"$/g, "");
 
+			// Generate deskripsi
 			const deskripsiContents = [
 				{
 					role: "user",
@@ -65,6 +67,7 @@ async function main() {
 			}
 			deskripsi = deskripsi.trim();
 
+			// Update database
 			await prisma.maps.update({
 				where: { id: data.id },
 				data: {
@@ -80,8 +83,18 @@ async function main() {
 			console.log("---");
 		} catch (error) {
 			console.error(`Error processing ${nama}:`, error);
-			console.log(`Proses dihentikan karena error pada data: ${nama}`);
-			break;
+			if (!(error instanceof Error)) return;
+
+			// Check if it's a rate limit error (429)
+			if (error.message && error.message.includes("429")) {
+				console.log(`Rate limit exceeded. Waiting 25 seconds before retrying...`);
+				await new Promise((resolve) => setTimeout(resolve, 25000));
+				console.log(`Retrying ${nama}...`);
+				continue; // Retry the same data
+			} else {
+				console.log(`Proses dihentikan karena error pada data: ${nama}`);
+				break;
+			}
 		}
 	}
 }
