@@ -3,7 +3,7 @@
 import Footer from "@/components/Footer";
 import React, { ReactNode } from "react";
 import { SearchProvider } from "../../contexts/SearchContext";
-import NavBar from "./NavBar";
+import NavBar from "./recomendation/NavBar";
 
 export default function layout(props: { children: ReactNode }) {
 	return (

@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 
-import Navbar from "@/components/LandingPageNavbar";
+import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import TrendingDestination from "@/components/TrendingDestination";
 import AboutUs from "@/components/AboutUs";
