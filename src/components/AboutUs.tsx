@@ -87,21 +87,29 @@ const AboutUs = () => {
 						<motion.h2 className={`text-3xl font-bold mt-4 leading-tight text-gray-800 ${nunito.className}`} variants={variants} transition={{ delay: 0.4 }}>
 							We Help You Uncover <span className="bg-gradient-to-r from-yellow-400 via-pink-500 to-blue-500 bg-clip-text text-transparent">Indonesia's Hidden Gems</span> Effortlessly and Enjoyably
 						</motion.h2>
-						<motion.p className={`text-gray-600 mt-4 text-base leading-relaxed ${inter.className}`} variants={variants} transition={{ delay: 0.5 }}>
-							AitherWay is an AI-powered travel assistant that helps you find your perfect destination—just by asking. Whether you're dreaming of a quiet escape, a scenic adventure, or a budget-friendly getaway, simply tell us what you're looking for. Our AI will respond with personalized location picks, mapped routes, and the top 5 recommendations tailored to your preferences. Say goodbye to endless
-							searching—AitherWay makes discovering Indonesia beautifully simple.
+						<motion.p
+							className={`text-gray-600 mt-4 text-base leading-relaxed ${inter.className}`}
+							variants={variants}
+							transition={{ delay: 0.5 }}
+						>
+							AitherWay is an AI-powered travel assistant that helps you discover the perfect destination in Java just by describing what you want. From “cool hidden places” to “quiet and cheap spots,” simply type in any prompt and AitherWay will instantly respond with trusted recommendations near your location. No route planning, no filters just smart, personalized suggestions with essential info like price, rating, and full descriptions.
 						</motion.p>
-						<motion.ul className="mt-8 lg:mt-4 pl-4 grid grid-cols-1 sm:grid-cols-2 sm:gap-2 md:gap-3 lg:gap-5 text-base lg:text-xl text-gray-800 list-disc font-semibold" variants={variants} transition={{ delay: 0.6 }}>
-							<li>Prompt-Based Travel Suggestions</li>
-							<li>AI Curated Destination Picks</li>
-							<li>Top 5 Personalized Recommendations</li>
-							<li>Mapped Routes to Your Dream Getaway</li>
+
+						<motion.ul
+							className="mt-8 lg:mt-4 pl-4 grid grid-cols-1 sm:grid-cols-2 sm:gap-2 md:gap-3 lg:gap-5 text-base lg:text-xl text-gray-800 list-disc font-semibold"
+							variants={variants}
+							transition={{ delay: 0.6 }}
+						>
+							<li>Location-Aware AI Suggestions</li>
+							<li>Top 5 Personalized Hidden Gems</li>
+							<li>Full Details: Prices, Ratings & Descriptions</li>
+							<li>Explore 2,000+ Tourist Destinations in Central Java</li>
 						</motion.ul>
 
 						{/* Button */}
 						<motion.div variants={variants} transition={{ delay: 0.7 }}>
 							<Button className="rounded-full mt-8 lg:mt-6 text-base px-6 py-4 sm:py-5 text-white bg-rose-500 hover:bg-rose-500 shadow-sm cursor-pointer flex items-center gap-2">
-								<Link href="/login" className="flex items-center gap-2">
+								<Link href="/about" className="flex items-center gap-2">
 									More About Us <FaArrowRightLong />
 								</Link>
 							</Button>

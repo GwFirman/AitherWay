@@ -7,7 +7,7 @@ import { Playwrite_DE_LA } from "next/font/google";
 
 import { BiMapPin } from "react-icons/bi";
 import { FaRegCompass } from "react-icons/fa";
-import { RiRouteLine } from "react-icons/ri";
+import { RiStarLine } from "react-icons/ri";
 import { HiOutlineSparkles } from "react-icons/hi2";
 
 const inter = Inter({
@@ -22,32 +22,36 @@ const playwrite = Playwrite_DE_LA({
 
 const features = [
   {
+    icon: HiOutlineSparkles,
+    title: "Top 5 Hidden Gems",
+    description:
+      "Discover 5 personalized destinations you won't find on typical travel lists.",
+    bgColor: "bg-cyan-50",
+    iconColor: "text-cyan-500",
+  },
+  {
     icon: BiMapPin,
-    title: "Smart Destination Match",
-    description: "Get location picks based on your preferences—no endless searching needed.",
+    title: "Nearby First",
+    description:
+      "Prioritized results based on your location—faster, closer, and more relevant.",
     bgColor: "bg-rose-50",
     iconColor: "text-rose-500",
   },
   {
     icon: FaRegCompass,
-    title: "Instant Travel Suggestions",
-    description: "Tell us your mood or vibe, and we'll recommend your next trip in seconds.",
+    title: "Rich Destination Info",
+    description:
+      "Each spot comes with detailed descriptions, price range, and user-based insights.",
     bgColor: "bg-pink-50",
     iconColor: "text-pink-500",
   },
   {
-    icon: RiRouteLine,
-    title: "Auto Route Mapping",
-    description: "We map your journey with time-saving routes and helpful local insights.",
-    bgColor: "bg-teal-50",
-    iconColor: "text-teal-600",
-  },
-  {
-    icon: HiOutlineSparkles,
-    title: "Top 5 Hidden Gems",
-    description: "Discover curated places you didn’t know existed—tailored just for you.",
-    bgColor: "bg-cyan-50",
-    iconColor: "text-cyan-500",
+    icon: RiStarLine,
+    title: "Reliable Ratings",
+    description:
+      "All places are backed by trusted sources and verified user ratings.",
+    bgColor: "bg-yellow-50",
+    iconColor: "text-yellow-500",
   },
 ];
 

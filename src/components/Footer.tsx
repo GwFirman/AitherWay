@@ -2,8 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { FaFacebookF, FaInstagram } from "react-icons/fa";
-import { FaXTwitter, FaPhone, FaLocationDot } from "react-icons/fa6";
+import { FaPhone, FaLocationDot } from "react-icons/fa6";
 import { IoMail } from "react-icons/io5";
 
 const Footer = () => {
@@ -45,12 +44,6 @@ const Footer = () => {
 		},
 	};
 
-	const socialLinks = [
-		{ icon: <FaFacebookF />, href: "#", label: "Facebook" },
-		{ icon: <FaInstagram />, href: "#", label: "Instagram" },
-		{ icon: <FaXTwitter />, href: "#", label: "Twitter" },
-	];
-
 	return (
 		<footer id="footer" className="bg-gray-900 text-white pt-12 overflow-hidden mt-auto">
 			<motion.div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-start gap-8 lg:gap-12" variants={containerVariants} initial="hidden" animate={isVisible ? "visible" : "hidden"}>
@@ -60,13 +53,6 @@ const Footer = () => {
 						<span className="text-2xl font-semibold">AitherWay</span>
 					</motion.div>
 					<p className="text-sm text-gray-300 mb-6 max-w-sm">AitherWay is your ultimate travel companion, providing personalized itineraries and recommendations for your next adventure. Explore indonesia with us!</p>
-					<div className="flex space-x-4">
-						{socialLinks.map((link, index) => (
-							<motion.a key={link.label} href={link.href} className="bg-slate-800 p-2.5 rounded-md hover:bg-rose-500 transition-colors duration-300" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: index * 0.1 }} aria-label={link.label}>
-								{link.icon}
-							</motion.a>
-						))}
-					</div>
 				</motion.div>
 
 				{/* Contact Info */}
