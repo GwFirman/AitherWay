@@ -54,7 +54,7 @@ export default function OtherPlaceTravel({ places }: { places: Place[] }) {
 				{places.map((place, i) => (
 					<motion.div animate={{ opacity: [0, 1], y: [-70, 0] }} transition={{ delay: i * 0.2 }} key={place.id} className="w-[300px] flex-shrink-0">
 						<Link href={`/recomendation/${slug(String(place.nama))}`} className="relative flex h-full flex-col overflow-hidden rounded-2xl bg-white/95 shadow-md backdrop-blur-md">
-							{place.harga && <div className="absolute top-2 right-2 rounded bg-rose-600/80 px-3 py-1 text-sm font-semibold text-white shadow-md backdrop-blur-md backdrop-filter">{place.harga === "Gratis" ? "Free" : `${place.harga} IDR`}</div>}
+							{place.harga && <div className="absolute top-2 right-2 rounded bg-rose-600/80 px-3 py-1 text-sm font-semibold text-white shadow-md backdrop-blur-md backdrop-filter">{place.harga === "Gratis" ? "Free" : `${place.harga}`}</div>}
 							<Image src={String(place.gambar)} alt={String(place.nama)} width={300} height={0} className="aspect-[4/3] w-full object-cover" />
 							<div className="flex flex-1 flex-col justify-between bg-gradient-to-br from-white to-slate-50/50 p-5">
 								<div>
