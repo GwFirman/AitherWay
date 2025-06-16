@@ -16,7 +16,7 @@ import nusaDua from "@/assets/images/NusaDuaBali.jpg";
 import gunungRinjani from "@/assets/images/gunungRinjani.jpg";
 import pantaiBalangan from "@/assets/images/PantaiBalangan.jpg";
 import { signIn, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 const carouselData = [
 	{
@@ -51,11 +51,14 @@ const Login = () => {
 		}),
 	};
 
-	const router = useRouter();
-	const { data: session } = useSession();
+	const { data: session, status } = useSession();
 
 	if (session?.user) {
-		router.push("/recomendation");
+		redirect("/recomendation");
+	}
+
+	if (status !== "unauthenticated") {
+		return null;
 	}
 
 	return (

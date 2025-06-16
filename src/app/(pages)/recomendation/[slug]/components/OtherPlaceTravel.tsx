@@ -7,19 +7,10 @@ import slug from "slug";
 import { MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { FaCircle, FaRegCircle, FaAdjust } from "react-icons/fa";
-
-type Place = {
-	id: string;
-	nama: string;
-	alamat: string;
-	distance_km?: number;
-	deskripsi: string;
-	harga: string;
-	rating: string;
-	total_ulasan: number;
-	gambar: string;
-	slug: string;
-};
+import { Maps } from "@prisma/client";
+import { useSearch } from "@/contexts/SearchContext";
+import { getDistance } from "./ListOtherPlace";
+import { parsePrice } from "../../page";
 
 function renderCircles(rating: number) {
 	const circles = [];
@@ -38,7 +29,9 @@ function renderCircles(rating: number) {
 	return circles;
 }
 
-export default function OtherPlaceTravel({ places }: { places: Place[] }) {
+export default function OtherPlaceTravel({ places }: { places: Maps[] }) {
+	const { coordinates } = useSearch();
+
 	if (!places?.length) {
 		return (
 			<div className="mx-auto max-w-7xl px-6 py-8">
@@ -54,12 +47,19 @@ export default function OtherPlaceTravel({ places }: { places: Place[] }) {
 				{places.map((place, i) => (
 					<motion.div animate={{ opacity: [0, 1], y: [-70, 0] }} transition={{ delay: i * 0.2 }} key={place.id} className="w-[300px] flex-shrink-0">
 						<Link href={`/recomendation/${slug(String(place.nama))}`} className="relative flex h-full flex-col overflow-hidden rounded-2xl bg-white/95 shadow-md backdrop-blur-md">
-							{place.harga && <div className="absolute top-2 right-2 rounded bg-rose-600/80 px-3 py-1 text-sm font-semibold text-white shadow-md backdrop-blur-md backdrop-filter">{place.harga === "Gratis" ? "Free" : `${place.harga} IDR`}</div>}
+							{place.harga && <div className="absolute top-2 right-2 rounded bg-rose-600/80 px-3 py-1 text-sm font-semibold text-white shadow-md backdrop-blur-md backdrop-filter">{parsePrice(place.harga)}</div>}
 							<Image src={String(place.gambar)} alt={String(place.nama)} width={300} height={0} className="aspect-[4/3] w-full object-cover" />
 							<div className="flex flex-1 flex-col justify-between bg-gradient-to-br from-white to-slate-50/50 p-5">
 								<div>
 									<h1 className="text-lg font-bold text-slate-800">{place.nama}</h1>
-									<p className="text-sm">{typeof place.distance_km === "number" && !isNaN(place.distance_km) ? `${place.distance_km.toFixed(1)} KM` : "-"}</p>
+									<p className="text-sm text-slate-500">
+										{getDistance(
+											coordinates?.lat || 0, //
+											coordinates?.lng || 0,
+											place.latitude,
+											place.longitude,
+										).toFixed(2) + " KM"}
+									</p>
 									<div className="mt-2 flex items-center gap-3">
 										<span className="text-sm font-semibold text-slate-600">{place.rating}</span>
 										<div className="flex items-center gap-1">{renderCircles(parseFloat(String(place.rating)))}</div>

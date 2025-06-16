@@ -1,35 +1,32 @@
-"use server";
+"use client";
 
-import { prisma } from "@/lib/prisma";
 import OtherPlaceTravel from "./OtherPlaceTravel";
+import { useEffect, useState } from "react";
+import { Maps } from "@prisma/client";
+import axios from "axios";
+import { useSearch } from "@/contexts/SearchContext";
 
-export default async function ListOtherPlace({ currentId }: { currentId: string }) {
-	const placesRaw: any[] = await prisma.$queryRaw`
-        SELECT * FROM "Maps" WHERE id <> ${currentId} ORDER BY RANDOM() LIMIT 5
-    `;
+export function getDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+	const R = 6371; // Radius bumi dalam km
+	const dLat = (lat2 - lat1) * (Math.PI / 180);
+	const dLon = (lon2 - lon1) * (Math.PI / 180);
 
-	const placeIds = placesRaw.map((p) => p.id);
-	const allReviews = await prisma.reviews.findMany({
-		where: { mapsId: { in: placeIds } },
-		select: { mapsId: true, rating: true },
-	});
+	const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
 
-	const places = placesRaw.map((place) => {
-		const reviews = allReviews.filter((r) => r.mapsId === place.id);
-		const total_ulasan = reviews.length;
-		const rating = total_ulasan > 0 ? (reviews.reduce((sum, r) => sum + parseFloat(r.rating || "0"), 0) / total_ulasan).toFixed(1) : "0.0";
-		return {
-			id: place.id,
-			nama: place.nama,
-			alamat: place.alamat,
-			distance_km: 0, 
-			deskripsi: place.deskripsi,
-			harga: place.harga,
-			rating,
-			total_ulasan,
-			gambar: place.gambar,
-			slug: place.slug,
-		};
-	});
-	return <OtherPlaceTravel places={places} />;
+	const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+	return R * c; // Hasil dalam kilometer
+}
+
+export default function ListOtherPlace() {
+	const { coordinates } = useSearch();
+	const [placesRaw, setPlacesRaw] = useState<Maps[]>([]);
+
+	useEffect(() => {
+		(async () => {
+			const res = await axios.get<Maps[]>(`/api/recomendation/other_place`);
+			setPlacesRaw(res.data);
+		})();
+	}, []);
+
+	return <OtherPlaceTravel places={placesRaw} />;
 }

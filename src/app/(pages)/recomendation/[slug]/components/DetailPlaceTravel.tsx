@@ -1,19 +1,12 @@
 "use client";
 
+import { Maps } from "@prisma/client";
 import { motion } from "framer-motion";
 import { Ticket, MapPin, Users } from "lucide-react";
 import { FaCircle, FaRegCircle, FaAdjust } from "react-icons/fa";
-
-type DetailsPlaceProps = {
-	data: {
-		deskripsi?: string;
-		rating?: string;
-		total_ulasan?: number;
-		harga?: string;
-		jarak_km?: string;
-		map_url?: string;
-	};
-};
+import { getDistance } from "./ListOtherPlace";
+import { useSearch } from "@/contexts/SearchContext";
+import { parsePrice } from "../../page";
 
 const getRatingAsNumber = (rating?: string) => {
 	const num = parseFloat(rating || "0");
@@ -37,8 +30,9 @@ function renderCircles(rating: number) {
 	return circles;
 }
 
-export const DetailPlace = ({ data }: DetailsPlaceProps) => {
+export const DetailPlace = ({ data }: { data: Maps }) => {
 	const ratingNum = getRatingAsNumber(data.rating);
+	const { coordinates } = useSearch();
 
 	return (
 		<div className="mx-auto max-w-7xl px-4 py-8">
@@ -85,7 +79,7 @@ export const DetailPlace = ({ data }: DetailsPlaceProps) => {
 								<Ticket className="h-5 w-5 text-emerald-600" />
 								<span className="text-sm font-medium text-gray-700">Harga Tiket</span>
 							</div>
-							{data.harga ? <div className="text-xl font-semibold text-emerald-600">{data.harga === "Gratis" ? "Gratis" : data.harga}</div> : <div className="text-sm text-gray-400">Belum tersedia</div>}
+							<div className="text-xl font-semibold text-emerald-600">{parsePrice(data.harga)}</div>
 							<div className="mt-1 text-xs text-gray-500">per orang</div>
 						</motion.div>
 
@@ -95,7 +89,12 @@ export const DetailPlace = ({ data }: DetailsPlaceProps) => {
 								<MapPin className="h-5 w-5 text-blue-600" />
 								<span className="text-sm font-medium text-gray-700">Jarak Lokasi</span>
 							</div>
-							{data.jarak_km ? <div className="text-xl font-semibold text-blue-600">{data.jarak_km}</div> : <div className="text-sm text-gray-400">Tidak tersedia</div>}
+							{getDistance(
+								coordinates?.lat || 0, //
+								coordinates?.lng || 0,
+								data.latitude,
+								data.longitude,
+							).toFixed(2) + " KM"}
 							<div className="mt-1 text-xs text-gray-500">dari pencarian</div>
 						</motion.div>
 					</div>
