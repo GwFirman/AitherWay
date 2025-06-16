@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Inter } from "next/font/google";
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import logoText from "@/assets/logo/logo-white.svg"
 
 
 const inter = Inter({
@@ -18,7 +20,7 @@ const Navbar: React.FC = () => {
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const logoText = "Aither Way";
+  const logo = logoText;
 
   const menuItems = [
     { label: "Home", href: "/" },
@@ -100,7 +102,7 @@ const Navbar: React.FC = () => {
             className="flex-shrink-0 flex items-center"
             variants={logoVariants}
           >
-            <span className="text-xl font-bold">{logoText}</span>
+            <a href="/"><Image src={logo} alt="Logo" width={160} height={60} /></a>
           </motion.div>
 
           <div className="hidden md:flex items-center justify-center flex-1">

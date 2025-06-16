@@ -2,11 +2,15 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { MapPin, X, Menu } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import SearchBot from "@/components/ui/search-bot";
 import { useSearch } from "../../../contexts/SearchContext";
 import { useRouter } from "next/navigation";
+import logoText from "@/assets/logo/logo-slate.svg";
+
+const logo = logoText;
 
 const menuItems = [
   { label: "Home", href: "/" },
@@ -84,7 +88,7 @@ export default function NavBar() {
               href="/"
               className="text-xl font-bold text-slate-800 transition-colors hover:text-pink-600"
             >
-              AitherWay
+              <Image src={logo} alt="Logo" width={160} height={60} />
             </Link>
           </motion.div>
 
