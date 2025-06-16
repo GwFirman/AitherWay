@@ -10,7 +10,7 @@ import { FaCircle, FaRegCircle, FaAdjust } from "react-icons/fa";
 import { Maps } from "@prisma/client";
 import { useSearch } from "@/contexts/SearchContext";
 import { getDistance } from "./ListOtherPlace";
-import { parsePrice } from "../../page";
+import { parsePrice } from "@/lib/utils";
 
 function renderCircles(rating: number) {
 	const circles = [];

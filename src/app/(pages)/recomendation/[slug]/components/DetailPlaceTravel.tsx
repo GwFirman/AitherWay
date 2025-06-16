@@ -6,7 +6,7 @@ import { Ticket, MapPin, Users } from "lucide-react";
 import { FaCircle, FaRegCircle, FaAdjust } from "react-icons/fa";
 import { getDistance } from "./ListOtherPlace";
 import { useSearch } from "@/contexts/SearchContext";
-import { parsePrice } from "../../page";
+import { parsePrice } from "@/lib/utils";
 
 const getRatingAsNumber = (rating?: string) => {
 	const num = parseFloat(rating || "0");
