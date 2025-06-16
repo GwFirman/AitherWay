@@ -103,7 +103,7 @@ const AboutUs = () => {
 							<li>Location-Aware AI Suggestions</li>
 							<li>Top 5 Personalized Hidden Gems</li>
 							<li>Full Details: Prices, Ratings & Descriptions</li>
-							<li>Explore 2,000+ Tourist Destinations in Central Java</li>
+							<li>Explore 2,000+ Tourist Destinations Across Java</li>
 						</motion.ul>
 
 						{/* Button */}
