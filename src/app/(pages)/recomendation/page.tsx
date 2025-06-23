@@ -32,7 +32,7 @@ function renderCircles(rating: number) {
 }
 
 function RecomendationContent() {
-	const { fetchRecommendations, isLoading, results, coordinates, error, setQuery } = useSearch();
+	const { fetchRecommendations, isLoading, results, coordinates, error, setQuery, query } = useSearch();
 	const searchParams = useSearchParams();
 	const search = searchParams.get("q");
 
@@ -47,7 +47,7 @@ function RecomendationContent() {
 	};
 
 	useEffect(() => {
-		setQuery(search || "");
+		setQuery(query || search || "");
 		if (search && coordinates && !results.data.length) {
 			handleSearch(search);
 		}
