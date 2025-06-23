@@ -43,10 +43,10 @@ export async function GET(req: NextRequest) {
 	// const apiUrl = getRandomApiUrl();
 
 	// 2. Hash-based (konsisten untuk kombinasi parameter yang sama)
-	const apiUrl = getHashBasedApiUrl(q1, q2);
+	// const apiUrl = getHashBasedApiUrl(q1, q2);
 
 	// 3. Time-based (distribusi berdasarkan waktu)
-	// const apiUrl = getTimeBasedApiUrl();
+	const apiUrl = getTimeBasedApiUrl();
 
 	try {
 		// POST ke API eksternal
