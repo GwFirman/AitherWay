@@ -56,7 +56,7 @@ function RecomendationContent() {
 	return (
 		<div className="flex min-h-screen flex-col gap-6 px-4 pt-20">
 			{error && (
-				<div className="flex grow flex-row items-center gap-6 pt-32">
+				<div className="mx-auto flex grow flex-row items-center gap-6 pt-32">
 					<AlertCircleIcon />
 					<p className="text-2xl font-bold">{error}</p>
 				</div>
@@ -66,7 +66,7 @@ function RecomendationContent() {
 					<Loader2 className="animate-spin" />
 				</div>
 			)}
-			{!isLoading && results.data.length === 0 && (
+			{!isLoading && !error && results.data.length === 0 && (
 				<div className="mx-auto mt-8 flex max-w-sm flex-col items-center justify-center gap-4 rounded-xl border p-6 shadow-sm sm:mt-12 sm:max-w-2xl sm:gap-6 sm:p-8 md:max-w-3xl md:p-12">
 					<p className="text-center text-xl leading-tight font-bold sm:text-2xl md:text-3xl">Try searching to get started</p>
 					<p className="max-w-md text-center text-sm leading-relaxed text-gray-600 sm:max-w-lg sm:text-base">Start searching for recommendations to discover places tailored for you.</p>

@@ -1,3 +1,4 @@
+import { enforceRateLimit } from "@/lib/rate-limit-gate";
 import { NextRequest } from "next/server";
 
 // Array URL untuk load balancing
@@ -49,6 +50,8 @@ export async function GET(req: NextRequest) {
 	const apiUrl = getTimeBasedApiUrl();
 
 	try {
+		// await enforceRateLimit();
+
 		// POST ke API eksternal
 		const externalRes = await fetch(apiUrl, {
 			method: "POST",
@@ -123,6 +126,9 @@ export async function GET(req: NextRequest) {
 			},
 		});
 	} catch (error) {
+		if (error instanceof Error && error.name == "RateLimitError") {
+			return new Response(error.message, { status: 500 });
+		}
 		console.error("Error:", error);
 		return new Response("Internal Server Error", { status: 500 });
 	}

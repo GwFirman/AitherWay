@@ -35,7 +35,9 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
 
 	const fetchRecommendations = async (search: string, from: string) => {
 		try {
+			// setResults({ data: [] });
 			setIsLoading(true);
+			setError("");
 			const queryParams = new URLSearchParams();
 			queryParams.append("q1", search);
 			queryParams.append("q2", from);
@@ -43,7 +45,7 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
 			const response = await fetch(`/api/recomendation?${queryParams.toString()}`);
 			if (!response.ok) {
 				console.warn("Gagal memuat data rekomendasi. Status:", response.status);
-				setError("Terjadi kesalahan saat memuat rekomendasi. Silakan coba lagi nanti.");
+				setError((await response.text()) || "Terjadi kesalahan saat memuat rekomendasi. Silakan coba lagi nanti.");
 				return;
 			}
 
