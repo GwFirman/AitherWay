@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import { FaPhone, FaLocationDot } from "react-icons/fa6";
 import { IoMail } from "react-icons/io5";
@@ -49,8 +50,8 @@ const Footer = () => {
 			<motion.div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-start gap-8 lg:gap-12" variants={containerVariants} initial="hidden" animate={isVisible ? "visible" : "hidden"}>
 				{/* Brand Section */}
 				<motion.div className={`w-full sm:w-auto`} variants={itemVariants}>
-					<motion.div className="flex items-center space-x-2 mb-4" whileHover={{ scale: 1.05 }}>
-						<span className="text-2xl font-semibold">AitherWay</span>
+					<motion.div className="flex items-center space-x-2 mb-4 cursor-pointer" whileHover={{ scale: 1.02 }}>
+						<Link href="/" className="text-2xl font-semibold">AitherWay</Link>
 					</motion.div>
 					<p className="text-sm text-gray-300 mb-6 max-w-sm">AitherWay is your ultimate travel companion, providing personalized itineraries and recommendations for your next adventure. Explore indonesia with us!</p>
 				</motion.div>

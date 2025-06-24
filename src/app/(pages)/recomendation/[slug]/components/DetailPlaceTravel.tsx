@@ -74,14 +74,16 @@ export const DetailPlace = ({ data }: { data: Maps }) => {
 						</motion.div>
 
 						{/* Price Card */}
-						<motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} viewport={{ once: true, amount: 0.3 }} className="rounded-xl border border-gray-200/60 bg-white p-5 shadow-sm">
-							<div className="mb-3 flex items-center gap-2">
-								<Ticket className="h-5 w-5 text-emerald-600" />
-								<span className="text-sm font-medium text-gray-700">Harga Tiket</span>
-							</div>
-							<div className="text-xl font-semibold text-emerald-600">{parsePrice(data.harga)}</div>
-							<div className="mt-1 text-xs text-gray-500">per orang</div>
-						</motion.div>
+						{data.harga && (
+							<motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} viewport={{ once: true, amount: 0.3 }} className="rounded-xl border border-gray-200/60 bg-white p-5 shadow-sm">
+								<div className="mb-3 flex items-center gap-2">
+									<Ticket className="h-5 w-5 text-emerald-600" />
+									<span className="text-sm font-medium text-gray-700">Harga Tiket</span>
+								</div>
+								<div className="text-xl font-semibold text-emerald-600">{parsePrice(data.harga)}</div>
+								<div className="mt-1 text-xs text-gray-500">per orang</div>
+							</motion.div>
+						)}
 
 						{/* Location Card */}
 						<motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4 }} viewport={{ once: true, amount: 0.3 }} className="rounded-xl border border-gray-200/60 bg-white p-5 shadow-sm">
