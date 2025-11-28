@@ -1,19 +1,20 @@
-// Import the GMaps library from the lib directory
 import GMaps from "../lib/gMaps";
 
-// Main asynchronous function that runs the scraper
-async function main() {
-	// Create an instance of the GMaps class
-	const gMapsInstance = new GMaps();
-	// return gMapsInstance.initBrowser();
+// ==========================================
+// CONFIGURATION - Edit here!
+// ==========================================
 
-	// Flag to decide whether to save data to the database
-	// Set to true if you want to save to the database
-	const saveToDB = false;
+const CONFIG = {
+	// Save to database?
+	saveToDB: true,
 
-	// List of categories for places to search (e.g., mountains, beaches)
-	const categories = [
-		"gunung jawa", // Mountain
+	// Generate AI content?
+	generateHarga: false, // Set to false to skip price estimation
+	generateDeskripsi: true, // Set to false to skip description generation
+
+	// Categories to search
+	categories: [
+		"gunung", // Mountain
 		"pantai", // Beach
 		"pulau", // Island
 		"air terjun", // Waterfall
@@ -24,10 +25,10 @@ async function main() {
 		"lembah", // Valley
 		"perbukitan", // Hills
 		"taman nasional", // National Park
-	];
+	],
 
-	// List of provinces in Indonesia to search in
-	const provinces = [
+	// Provinces in Indonesia
+	provinces: [
 		"jakarta",
 		"banten",
 		"jawa barat",
@@ -57,46 +58,112 @@ async function main() {
 		"sulawesi selatan",
 		"sulawesi tenggara",
 		"gorontalo",
+		"sulawesi barat",
 		"maluku",
 		"maluku utara",
 		"papua",
 		"papua barat",
+		"papua tengah",
 		"papua pegunungan",
-	];
+		"papua selatan",
+		"papua barat daya",
+	],
+};
 
-	// List of API keys for Google Maps API (replace with actual keys)
-	// Using multiple keys in round-robin to avoid rate limits
-	const apiKeys = ["API_KEY_1", "API_KEY_2", "API_KEY_3", "API_KEY_4"];
+// ==========================================
+// AI PROMPT TEMPLATES - Customize prompts here!
+// ==========================================
 
-	// Index to keep track of the current API key in round-robin
-	let currentKeyIndex = 0;
+export const AI_PROMPTS = {
+	// Prompt for price estimation
+	harga: (nama: string, reviews: string) =>
+		`Berdasarkan nama tempat "${nama}" dan review berikut: ${reviews}. Jika ini adalah tempat wisata yang memerlukan tiket masuk, berikan estimasi harga tiket untuk 1 orang dalam format string (contoh: "Rp 15.000"). Jika gratis, kembalikan string "Gratis". Jika tidak ada informasi harga yang jelas di review, kembalikan string kosong "". Hanya kembalikan string hasilnya, tanpa penjelasan tambahan.`,
 
-	// Function to get the next API key in a round-robin fashion
-	function getNextApiKey() {
-		const apiKey = apiKeys[currentKeyIndex];
-		currentKeyIndex = (currentKeyIndex + 1) % apiKeys.length;
-		return apiKey;
+	// Prompt for description generation
+	deskripsi: (nama: string, alamat: string, reviews: string) => `Berdasarkan nama tempat "${nama}", alamat "${alamat}", dan review berikut: ${reviews}. Buatkan deskripsi singkat dan menarik tentang tempat ini dalam 2-3 kalimat yang menggambarkan keunikan dan daya tariknya.`,
+};
+
+// ==========================================
+// GEMINI AI CONFIG
+// ==========================================
+
+export const GEMINI_CONFIG = {
+	model: "gemini-2.5-flash-preview-05-20",
+	responseMimeType: "text/plain",
+	retryDelay: 25000, // 25 seconds for rate limit
+};
+
+// ==========================================
+// MAIN SCRAPER
+// ==========================================
+
+async function main() {
+	// Auto-detect all GEMINI_API_KEY_* environment variables
+	const apiKeys = Object.keys(process.env)
+		.filter((key) => key.startsWith("GEMINI_API_KEY_"))
+		.sort() // Sort to maintain consistent order (GEMINI_API_KEY_1, _2, _3, etc.)
+		.map((key) => process.env[key])
+		.filter(Boolean) as string[];
+
+	if (apiKeys.length === 0) {
+		console.error("❌ No API keys found in environment variables!");
+		console.error("Please set GEMINI_API_KEY_1, GEMINI_API_KEY_2, etc. in .env.local");
+		process.exit(1);
 	}
 
-	// Loop through each province
-	for (const prov of provinces) {
-		// Loop through each category
-		for (const cat of categories) {
-			// Create a search query combining category and province
-			const query = `${cat} di ${prov}`;
+	console.log(
+		`🔑 Auto-detected API keys: ${Object.keys(process.env)
+			.filter((k) => k.startsWith("GEMINI_API_KEY_"))
+			.sort()
+			.join(", ")}`,
+	);
 
-			// Get the next API key for this request
-			const apikey = getNextApiKey();
+	// Round-robin API key selector
+	let keyIndex = 0;
+	const getNextApiKey = () => {
+		const key = apiKeys[keyIndex];
+		keyIndex = (keyIndex + 1) % apiKeys.length;
+		return key;
+	};
 
-			// Call the GMaps instance to get details for the query
-			// Pass the query, save flag, and API key
-			await gMapsInstance.getDetails(query, saveToDB, apikey);
+	// Initialize scraper
+	const scraper = new GMaps();
+
+	// Show configuration
+	console.log("=".repeat(50));
+	console.log("🚀 SCRAPER STARTED");
+	console.log("=".repeat(50));
+	console.log(`✅ API Keys Loaded: ${apiKeys.length}`);
+	console.log(`💾 Save to DB: ${CONFIG.saveToDB}`);
+	console.log(`💰 Generate Harga: ${CONFIG.generateHarga}`);
+	console.log(`📝 Generate Deskripsi: ${CONFIG.generateDeskripsi}`);
+	console.log(`🔍 Categories: ${CONFIG.categories.length}`);
+	console.log(`📍 Provinces: ${CONFIG.provinces.length}`);
+	console.log(`📊 Total Queries: ${CONFIG.categories.length * CONFIG.provinces.length}`);
+	console.log("=".repeat(50));
+	console.log("");
+
+	// Loop through provinces and categories
+	let queryCount = 0;
+	for (const province of CONFIG.provinces) {
+		for (const category of CONFIG.categories) {
+			queryCount++;
+			const query = `${category} di ${province}`;
+			const apiKey = getNextApiKey();
+
+			console.log(`[${queryCount}/${CONFIG.categories.length * CONFIG.provinces.length}] 🔍 Searching: ${query}`);
+
+			await scraper.getDetails(query, CONFIG.saveToDB, apiKey);
 		}
 	}
 
-	// Log a message when all scraping is done
-	console.log("sudah done");
+	console.log("\n" + "=".repeat(50));
+	console.log("✅ SCRAPING COMPLETED!");
+	console.log("=".repeat(50));
 }
 
-// Call the main function to start the scraper
-main();
+// Run scraper
+main().catch((error) => {
+	console.error("\n❌ FATAL ERROR:", error);
+	process.exit(1);
+});

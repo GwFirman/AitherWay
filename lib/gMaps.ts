@@ -16,10 +16,10 @@ export default class GMaps {
 	public async initBrowser(): Promise<Browser> {
 		if (this.browser) return this.browser;
 		this.browser = await puppeteer.launch({
-			executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe",
+			executablePath: "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
 			userDataDir: path.join(__dirname, "../", "userData"),
 			headless: false,
-			defaultViewport: { height: 800, width: 1280 },
+			defaultViewport: null,
 			args: [
 				'--disable-blink-features="AutomationControlled"',
 				"--no-sandbox",
@@ -28,7 +28,7 @@ export default class GMaps {
 				// "--disable-background-networking",
 				// "--disable-gpu", //
 			],
-			ignoreDefaultArgs: ["--enable-automation"],
+			// ignoreDefaultArgs: ["--enable-automation"],
 		});
 		return this.browser;
 	}
@@ -39,6 +39,16 @@ export default class GMaps {
 				await element.click();
 				return true;
 			} catch (error) {
+				// Fallback: Try native DOM click if Puppeteer click fails
+				try {
+					await element.evaluate((el: any) => el.scrollIntoView({ behavior: "instant", block: "center" }));
+					await new Promise((resolve) => setTimeout(resolve, 500));
+					await page.evaluate((el: any) => el.click(), element);
+					return true;
+				} catch (e) {
+					// Ignore fallback error and retry loop
+				}
+
 				if (attempt < maxAttempts) {
 					await new Promise((resolve) => setTimeout(resolve, 1000));
 				}
@@ -48,13 +58,13 @@ export default class GMaps {
 		return false;
 	}
 
-	private async extractBasicInfo(page: Page, width: string): Promise<{ nama: string; alamat: string; gambar: string; total_ulasan: string }> {
-		const nama = await page.$eval(`div[style="width: ${width}px;"] h1`, (el) => el.textContent?.trim() || "");
-		const alamat = await page.$eval(`div[style="width: ${width}px;"] div.Io6YTe`, (el) => el.textContent?.trim() || "");
-		const gambar = await page.$eval(`div[style="width: ${width}px;"] img`, (el) => el.getAttribute("src") || "");
+	private async extractBasicInfo(page: Page, selector: string): Promise<{ nama: string; alamat: string; gambar: string; total_ulasan: string }> {
+		const nama = await page.$eval(`${selector} h1`, (el) => el.textContent?.trim() || "");
+		const alamat = await page.$eval(`${selector} div.Io6YTe`, (el) => el.textContent?.trim() || "");
+		const gambar = await page.$eval(`${selector} img`, (el) => el.getAttribute("src") || "");
 
 		let total_ulasan = "";
-		const totalUlasanEl = await page.$(`div[style="width: ${width}px;"] div.TIHn2 .F7nice span span span[aria-label]`);
+		const totalUlasanEl = await page.$(`${selector} div.TIHn2 .F7nice span span span[aria-label]`);
 		if (totalUlasanEl) {
 			total_ulasan = await page.evaluate((el) => el.textContent?.match(/\d[\d.,]*/)?.[0] || "", totalUlasanEl);
 		} else {
@@ -64,7 +74,7 @@ export default class GMaps {
 		return { nama, alamat, gambar, total_ulasan };
 	}
 
-	private async extractReviews(page: Page, width: string): Promise<{ rating: string; ulasans: any[] }> {
+	private async extractReviews(page: Page, selector: string): Promise<{ rating: string; ulasans: any[] }> {
 		let rating = "";
 		let ulasans: any[] = [];
 
@@ -93,7 +103,6 @@ export default class GMaps {
 			});
 			await page.waitForNetworkIdle({ concurrency: 7 });
 
-			await page.waitForSelector(`div[style="width: ${width}px;"] h1`, { hidden: true });
 			await page.waitForSelector(`div[data-review-id][jslog]`, { visible: true });
 
 			rating = await page.$eval(`div.fontDisplayLarge`, (el) => el.textContent?.trim() || "");
@@ -209,26 +218,28 @@ export default class GMaps {
 	}
 
 	private async extractSinglePlaceInfo(): Promise<{ nama: string; alamat: string; gambar: string; total_ulasan: string }> {
-		await this.page!.waitForSelector(`div[style="width: 408px;"] h1`, { visible: true });
-		const nama = await this.page!.$eval(`div[style="width: 408px;"] h1`, (el) => el.textContent?.trim() || "");
+		await this.page!.waitForNetworkIdle({ concurrency: 7 });
+		const selector = 'div[role="main"]';
+		await this.page!.waitForSelector(`${selector} h1`, { visible: true });
+		const nama = await this.page!.$eval(`${selector} h1`, (el) => el.textContent?.trim() || "");
 
 		let alamat = "";
 		try {
-			alamat = await this.page!.$eval(`div[style="width: 408px;"] div.Io6YTe`, (el) => el.textContent?.trim() || "");
+			alamat = await this.page!.$eval(`${selector} div.Io6YTe`, (el) => el.textContent?.trim() || "");
 		} catch (e) {
 			this.log(`⚠️ Alamat tidak ditemukan`);
 		}
 
 		let gambar = "";
 		try {
-			gambar = await this.page!.$eval(`div[style="width: 408px;"] img`, (el) => el.getAttribute("src") || "");
+			gambar = await this.page!.$eval(`${selector} img`, (el) => el.getAttribute("src") || "");
 		} catch (e) {
 			this.log(`⚠️ Gambar tidak ditemukan`);
 		}
 
 		let total_ulasan = "0";
 		try {
-			const totalUlasanEl = await this.page!.$('div[style="width: 408px;"] div.TIHn2 .F7nice span span span[aria-label]');
+			const totalUlasanEl = await this.page!.$(`${selector} div.TIHn2 .F7nice span span span[aria-label]`);
 			if (totalUlasanEl) {
 				total_ulasan = await this.page!.evaluate((el) => el.textContent?.match(/\d[\d.,]*/)?.[0] || "", totalUlasanEl);
 			}
@@ -306,9 +317,9 @@ export default class GMaps {
 
 	public async getDetails(search: string, saveToDB: boolean, geminiApiKey?: string): Promise<void> {
 		try {
+			this.log(`🚀 Memulai pencarian untuk: "${search}"`);
 			const browser = await this.initBrowser();
 			this.page = await browser.newPage();
-			this.page.setDefaultTimeout(360_000);
 
 			// await this.page.setRequestInterception(true);
 
@@ -324,12 +335,19 @@ export default class GMaps {
 			// });
 
 			await this.page.goto("https://www.google.com/maps");
+			this.log("📍 Navigasi ke Google Maps");
 			await this.page.type("input[name='q']", search);
 			await this.page.keyboard.press("Enter");
+			this.log("⌨️  Input search query dan Enter");
 
-			await this.page.waitForSelector(`div[role="feed"] > div`, { visible: true });
+			try {
+				await this.page.waitForFunction(() => document.querySelector('div[role="feed"]') || document.querySelector('div[role="main"] h1'), { timeout: 10000 });
+			} catch (e) {
+				this.log("⚠️ Timeout waiting for search results to appear");
+			}
 
 			let isFeed = !!(await this.page.$(`div[role="feed"]`));
+			this.log(`ℹ️  Mode tampilan: ${isFeed ? "List (Feed)" : "Single Result"}`);
 
 			if (isFeed) {
 				const isEndVisible = async () => {
@@ -359,9 +377,10 @@ export default class GMaps {
 						const aTag = await item.$("div > div > a");
 						if (!aTag) continue;
 
-						await aTag.evaluate((el) => el.scrollIntoView({ behavior: "instant", block: "start" }));
+						await aTag.evaluate((el) => el.scrollIntoView({ behavior: "instant", block: "center" }));
 
 						let nama1 = await item.$eval(`div > div .fontHeadlineSmall`, (el) => el.textContent?.trim());
+						this.log(`🔎 Memeriksa item: ${nama1}`);
 						if (saveToDB && nama1) {
 							const existingPlace = await prisma.maps.findUnique({
 								where: { nama: nama1 },
@@ -374,7 +393,11 @@ export default class GMaps {
 						await this.page.waitForNetworkIdle({ concurrency: 7 });
 
 						const aTagClicked = await this.repeatClickUntilSuccess(this.page, aTag);
-						if (!aTagClicked) continue;
+						if (!aTagClicked) {
+							this.log(`❌ Gagal mengklik item: ${nama1}`);
+							continue;
+						}
+						this.log(`🖱️  Berhasil klik item: ${nama1}`);
 
 						if (!(await this.isVisible('div[role="feed"]'))) {
 							this.log("Single place info:", await this.extractSinglePlaceInfo());
@@ -382,27 +405,31 @@ export default class GMaps {
 						}
 
 						await this.page.waitForNetworkIdle({ concurrency: 7 });
-						await this.page.waitForSelector(`div[style="width: 860px;"]`, { visible: true });
+						await this.page.waitForSelector(`div[role="main"]`, { visible: true });
 
-						const { nama, alamat, gambar, total_ulasan } = await this.extractBasicInfo(this.page, "860");
+						const { nama, alamat, gambar, total_ulasan } = await this.extractBasicInfo(this.page, 'div[role="main"]');
+						this.log(`📄 Info dasar diekstrak: ${nama}`);
 
 						// Validasi data dasar
 						if (!nama || !alamat) {
 							this.log(`⚠️  Data tidak lengkap untuk item ini, skip.`);
 							await this.page.click(`svg.NMm5M`);
-							await this.page.waitForSelector(`div[style="width: 860px;"]`, { hidden: true });
+							await this.page.waitForNetworkIdle({ concurrency: 7 });
 							continue;
 						}
 
-						let { rating, ulasans } = await this.extractReviews(this.page, "860");
+						this.log(`⭐ Memulai ekstraksi review untuk: ${nama}`);
+						let { rating, ulasans } = await this.extractReviews(this.page, 'div[role="main"]');
+						this.log(`✅ Review diekstrak: ${ulasans.length} ulasan`);
 
+						this.log(`🤖 Menggenerate konten AI untuk: ${nama}`);
 						let { harga, deskripsi } = await this.generateAIContent(nama, alamat, ulasans, geminiApiKey);
 
 						// Generate slug from nama
 						const generatedSlug = slug(nama, { lower: true });
 
 						// Logging data
-						this.log(`🔄 Processing: ${nama}`, { slug: generatedSlug, alamat, rating, total_ulasan, harga, deskripsi, reviews: ulasans });
+						this.log(`🔄 Processing: ${nama}`, { slug: generatedSlug, alamat, rating, total_ulasan, harga, deskripsi, reviews: ulasans[0] });
 
 						const { latitude, longitude } = this.extractCoordinates(this.page.url());
 
@@ -424,16 +451,17 @@ export default class GMaps {
 							this.log(`✅ Data "${nama}" berhasil disimpan ke DB.`);
 						}
 
-						const backButtons = await this.page.$$("svg.NMm5M");
-						if (backButtons[1]) {
-							await this.repeatClickUntilSuccess(this.page, backButtons[1]);
-						}
-						await this.page.waitForSelector(`div[style="width: 860px;"]`, { hidden: true });
+						await this.page.waitForSelector("div.hWERUb:nth-child(3) > span:nth-child(1) > button:nth-child(1)", { visible: true });
+						await this.page.click("div.hWERUb:nth-child(3) > span:nth-child(1) > button:nth-child(1)");
+						await this.page.waitForNetworkIdle({ concurrency: 7 });
+						await this.page.waitForSelector(`.BHymgf`, { hidden: true });
 					}
 				}
 			} else {
 				// Single Result Case
+				this.log("👤 Memproses Single Result...");
 				const { nama, alamat, gambar, total_ulasan } = await this.extractSinglePlaceInfo();
+				this.log(`📄 Info dasar diekstrak: ${nama}`);
 
 				if (saveToDB && nama) {
 					const existingPlace = await prisma.maps.findUnique({ where: { nama: nama } });
@@ -447,14 +475,17 @@ export default class GMaps {
 				let ulasans: any[] = [];
 
 				try {
-					const result = await this.extractReviews(this.page!, "408");
+					this.log(`⭐ Memulai ekstraksi review untuk: ${nama}`);
+					const result = await this.extractReviews(this.page!, 'div[role="main"]');
 					rating = result.rating;
 					ulasans = result.ulasans;
+					this.log(`✅ Review diekstrak: ${ulasans.length} ulasan`);
 				} catch (error) {
 					this.log(`❌ Gagal memproses ulasan untuk "${nama}". Menghentikan proses untuk item ini.`);
 					return;
 				}
 
+				this.log(`🤖 Menggenerate konten AI untuk: ${nama}`);
 				let harga: string = "";
 				let deskripsi: string = "";
 
@@ -511,7 +542,7 @@ export default class GMaps {
 				const generatedSlug = slug(nama || "", { lower: true });
 
 				// Logging data
-				this.log(`🔄 Processing: ${nama}`, { slug: generatedSlug, alamat, rating, total_ulasan, harga, deskripsi, reviews: ulasans });
+				this.log(`🔄 Processing: ${nama}`, { slug: generatedSlug, alamat, rating, total_ulasan, harga, deskripsi, reviews: ulasans[0] });
 
 				const { latitude, longitude } = this.extractCoordinates(this.page.url());
 
