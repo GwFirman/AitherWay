@@ -108,6 +108,7 @@ model Reviews {
     nama      String
     rating    String
     komentar  String
+    tanggal   String?
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
