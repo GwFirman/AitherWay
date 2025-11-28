@@ -25,7 +25,7 @@ export default class GMaps {
 				"--no-sandbox",
 				"--disable-setuid-sandbox",
 				"--disable-dev-shm-usage",
-				"--disable-background-networking",
+				// "--disable-background-networking",
 				// "--disable-gpu", //
 			],
 			ignoreDefaultArgs: ["--enable-automation"],
@@ -310,18 +310,18 @@ export default class GMaps {
 			this.page = await browser.newPage();
 			this.page.setDefaultTimeout(360_000);
 
-			await this.page.setRequestInterception(true);
+			// await this.page.setRequestInterception(true);
 
-			this.page.on("request", (req) => {
-				const url = req.url();
-				const resourceType = req.resourceType();
+			// this.page.on("request", (req) => {
+			// 	const url = req.url();
+			// 	const resourceType = req.resourceType();
 
-				if (url.includes("/maps/vt/") || resourceType === "font") {
-					req.abort();
-				} else {
-					req.continue();
-				}
-			});
+			// 	if (url.includes("/maps/vt/") || resourceType === "font") {
+			// 		req.abort();
+			// 	} else {
+			// 		req.continue();
+			// 	}
+			// });
 
 			await this.page.goto("https://www.google.com/maps");
 			await this.page.type("input[name='q']", search);
